@@ -1,0 +1,70 @@
+@font-face {
+    font-family: 'rock_salt';
+    src: url('../fonts/webfontkit-20230807-150013/rocksalt-regular-webfont.woff2') format('woff2'),
+         url('../fonts/webfontkit-20230807-150013/rocksalt-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+*{
+    font-family: 'rock_salt', 'Times New Roman', Times, serif;
+    box-sizing: border-box;
+}
+
+body{
+    height: 100vh;
+    width: 100vw;
+    background: #f0f0f0;
+    display: grid;
+    grid: 1fr 10fr / 1fr;
+    justify-items: center;
+    gap: 20px;
+}
+
+/** START SCREEN **/
+
+
+.title{
+
+    letter-spacing: 1vw;
+    font-size: 50px;    
+    margin: 0;
+    padding: 35px;
+    white-space: nowrap;
+}
+
+.startGame{
+    padding: 20px;
+    width: 70%;
+    min-width: min-content;
+    height: fit-content;
+    display: grid;
+    grid-template-columns: 2fr 1fr 2fr;
+    justify-items: center;
+    gap: 5vw;
+}
+
+.text{
+    align-self: center;
+    height: fit-content;
+    width: fit-content;
+    font-size: 50px;
+}
+
+.playerCard{
+    --card-dimension: max(30vw, 280px);
+    display: flex;
+    flex-direction: column;
+    width: var(--card-dimension);
+    height: var(--card-dimension);
+    box-shadow: 0 0 10px #a6a6a6;
+    border-radius: 10px;
+    background: #ffffff
+}
+
+/** MEDIA QUERY **/
+@media only screen and (max-width: 850px) {
+    .startGame{
+        grid-template-columns: 1fr;
+    }
+}
