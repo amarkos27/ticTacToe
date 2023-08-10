@@ -9,22 +9,59 @@
     <title>Tic Tac Toe</title>
 </head>
 <body>
-    <h1 class="title">Tic Tac Toe</h1>
-    <div class="startGame">
-        <div class="playerCard" id="x">
-            <div class="img"></div>
-            <div class="options">
-                <div class="playerChoice">Player</div>
-                <div class="playerChoice">Bot</div>
+    <div class="startPage">
+        <h1 class="title">Tic Tac Toe</h1>
+        <div class="playerSelect">
+            <div class="playerCard" id="x">
+                <div class="top">X</div>
+                <iframe src="https://giphy.com/embed/3o7WTqRKlVRj0wsYQo" width="480" height="480" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
+                <div class="options">
+                    <div class="playerChoice hover">Player</div>
+                    <div class="playerChoice hover">Bot</div>
+                </div>
+            </div>
+            <div class="vs">
+                <div class="text">VS</div>
+                <a class="button" href="#" style="--color: black;">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    START GAME
+                  </a>
+            </div>
+            <div class="playerCard" id="o">
+                <div class="top">O</div>
+                <iframe src="https://giphy.com/embed/kHghhXmj13WrX1hJe0" width="480" height="480" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
+                <div class="options">
+                    <div class="playerChoice hover">Player</div>
+                    <div class="playerChoice hover">Bot</div>
+                </div>
             </div>
         </div>
-        <div class="text">VS</div>
-        <div class="playerCard" id="o">
-            <div class="img"></div>
-            <div class="options">
-                <div class="playerChoice">Player</div>
-                <div class="playerChoice">Bot</div>
+    </div>
+    <div class="gameActive">
+        <div class="upper">
+            <div class="scoreBlock">
+                <p class="player">Player</p>
+                <p class="score">Score</p>
             </div>
+            <div class="scoreBlock">
+                <p class="player">Player</p>
+                <p class="score">Score</p>
+            </div>
+            <div class="homeButton">H</div>
+        </div>
+        <div class="gameBoard">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
         </div>
     </div>
 </body>
