@@ -74,7 +74,7 @@ p{
 /** START BUTTON **/
 
 .button {
-    /* display: none; */
+    display: none;
     position: relative;
     padding: 6px 12px;
     font-size: 1rem;
