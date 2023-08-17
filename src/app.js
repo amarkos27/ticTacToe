@@ -1,40 +1,101 @@
-const buttonsX = Array.from(document.querySelectorAll('.playerChoice'));
-const buttonsO = buttonsX.splice(2);
-const home = document.querySelector('.homeButton');
-const gameScreen = document.querySelector('.gameActive');
-const startScreen = document.querySelector('.startPage');
+const displayController = (() => {
+  const startPage = document.querySelector('.startPage');
+  const gameScreen = document.querySelector('.gamePage');
+  const startButton = document.querySelector('.vs a');
+  const vs = document.querySelector('.text');
 
-const selected = (...args) => {
-  for (let i = 0; i < args.length; i++) {
-    if (args[i].classList.contains('selected')) {
-      return true;
-    }
-  }
-  return false;
-};
-
-const handler = (buttons) => {
-  buttons.forEach((currentButton) => {
-    currentButton.addEventListener('click', () => {
-      const otherButton = buttons.filter((opt) => opt !== currentButton)[0];
-
-      // Ensure the hover effect is only applied when both buttons
-      // are not pressed
-      if (!selected(currentButton, otherButton)) {
-        currentButton.classList.add('selected');
-        otherButton.classList.remove('hover');
-      } else if (selected(currentButton)) {
-        currentButton.classList.remove('selected');
-        currentButton.classList.add('hover');
-        otherButton.classList.add('hover');
-      } else {
-        currentButton.classList.add('selected');
-        otherButton.classList.remove('selected');
-        otherButton.classList.remove('hover');
-      }
+  const resetButtons = (buttons) => {
+    buttons.forEach((button) => {
+      button.classList.remove('selected');
+      button.classList.add('hover');
     });
-  });
-};
+    startButton.style.display = 'none';
+    vs.style.display = 'block';
+    gameScreen.style.display = 'none';
+    startPage.style.display = 'grid';
+  };
 
-handler(buttonsX);
-handler(buttonsO);
+  const selectButton = (clicked) => {
+    const parent = clicked.parentNode;
+    const otherButton = Array.from(parent.children).filter(
+      (button) => button !== clicked
+    )[0];
+    otherButton.classList.remove('hover');
+    if (!clicked.classList.contains('selected')) {
+      if (otherButton.classList.contains('selected')) {
+        clicked.classList.add('selected');
+        otherButton.classList.remove('selected');
+      } else {
+        clicked.classList.add('selected');
+      }
+    } else {
+      clicked.classList.remove('selected');
+      clicked.classList.add('hover');
+      otherButton.classList.add('hover');
+    }
+  };
+
+  const startBtn = (picked) => {
+    if (picked) {
+      vs.style.display = 'none';
+      startButton.style.display = 'block';
+    } else {
+      vs.style.display = 'block';
+      startButton.style.display = 'none';
+    }
+  };
+
+  const bothPicked = (buttons) => {
+    const picked = buttons.filter((button) =>
+      button.classList.contains('selected')
+    );
+    if (picked.length === 2) {
+      startBtn(true);
+    } else {
+      startBtn(false);
+    }
+    return picked;
+  };
+
+  const startGame = () => {
+    startPage.style.display = 'none';
+    gameScreen.style.display = 'flex';
+  };
+
+  const home = (buttons) => {
+    resetButtons(buttons);
+  };
+
+  return { selectButton, bothPicked, startBtn, startGame, home };
+})();
+
+const game = (() => {
+  const start = (selections) => {};
+
+  const playerChoices = () => {
+    const buttons = Array.from(document.querySelectorAll('.playerChoice'));
+    const startButton = document.querySelector('.vs a');
+    const homeButton = document.querySelector('.homeButton');
+    let selections = null;
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', (e) => {
+        displayController.selectButton(e.target);
+        selections = displayController.bothPicked(buttons);
+      });
+    });
+
+    startButton.addEventListener('click', () => {
+      displayController.startGame();
+      start(selections);
+    });
+
+    homeButton.addEventListener('click', () => {
+      displayController.home(buttons);
+    });
+  };
+
+  return { playerChoices };
+})();
+
+game.playerChoices();
