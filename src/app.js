@@ -101,13 +101,9 @@ const game = (() => {
   const start = (selections) => {
     const cells = Array.from(document.querySelectorAll('.cell'));
     cells.forEach((cell) => {
-      cell.addEventListener(
-        'click',
-        () => {
-          displayController.fill(cell);
-        },
-        true
-      );
+      cell.addEventListener('click', () => {
+        displayController.fill(cell);
+      });
     });
   };
 
