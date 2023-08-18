@@ -10,6 +10,7 @@ const displayController = (() => {
       button.classList.add('hover');
     });
     startButton.style.display = 'none';
+    vs.style.display = 'block';
     gamePage.style.display = 'none';
     startPage.style.display = 'grid';
   };
@@ -34,13 +35,26 @@ const displayController = (() => {
     }
   };
 
+  const fade = (type, element) => {
+    if (type === 'out') {
+      element.classList.add('fadeOut');
+      element.style.display = 'none';
+      setTimeout(() => {
+        element.classList.remove('fadeOut');
+      }, 500);
+    } else if (type === 'in') {
+      element.style.display = 'block';
+      element.classList.add('fadeIn');
+      setTimeout(() => {
+        element.classList.remove('fadeIn');
+      }, 500);
+    }
+  };
+
   const startBtn = (picked) => {
     if (picked) {
-      vs.style.display = 'none';
-      startButton.style.display = 'block';
-    } else {
-      vs.style.display = 'block';
-      startButton.style.display = 'none';
+      fade('out', vs);
+      fade('in', startButton);
     }
   };
 
@@ -73,7 +87,6 @@ const displayController = (() => {
       cell.appendChild(choice);
       cell.classList.remove('hover');
     } else {
-      console.log(cell);
       cell.classList.add('alreadyPicked');
       setTimeout(() => {
         cell.classList.remove('alreadyPicked');

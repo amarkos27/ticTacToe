@@ -25,8 +25,16 @@ body {
     background: var(--background);
 }
 
-p{
+p {
     margin: 0;
+}
+
+.fadeOut {
+    animation: fadeOut .5s;
+}
+
+.fadeIn {
+    animation: fadeIn .5s;
 }
 
 /** START SCREEN **/
@@ -49,14 +57,13 @@ p{
 
 .playerSelect {
     padding: 20px;
-    width: 60%;
-    min-width: min-content;
+    width: fit-content;
     height: fit-content;
     display: grid;
     grid-template-columns: 2fr 1fr 2fr;
     justify-items: center;
     gap: 10vw;
-    transition: 0.2s;
+    transition: width 0.5s;
 }
 
 .vs {
@@ -374,6 +381,16 @@ p{
 }
 
 /** KEYFRAMES **/
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
 
 @keyframes fadeIn {
     from {
