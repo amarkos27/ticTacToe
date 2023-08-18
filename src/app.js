@@ -51,23 +51,28 @@ const displayController = (() => {
     }
   };
 
-  const startBtn = (picked) => {
-    if (picked) {
+  const startBtn = (ready) => {
+    if (ready) {
       fade('out', vs);
       fade('in', startButton);
+    } else {
+      fade('out', startButton);
+      fade('in', vs);
     }
   };
 
-  const bothPicked = (buttons) => {
-    const picked = buttons.filter((button) =>
-      button.classList.contains('selected')
-    );
-    if (picked.length === 2) {
+  const bothPicked = (alreadyPicked) => {
+    const current = document.querySelectorAll('.selected');
+    if (!alreadyPicked) {
+      return current;
+    }
+    if (current.length === 2) {
       startBtn(true);
-    } else {
+    }
+    if (alreadyPicked.length > current.length) {
       startBtn(false);
     }
-    return picked;
+    return current;
   };
 
   const startGame = () => {
@@ -116,7 +121,7 @@ const game = (() => {
     buttons.forEach((button) => {
       button.addEventListener('click', (e) => {
         displayController.selectButton(e.target);
-        selections = displayController.bothPicked(buttons);
+        selections = displayController.bothPicked(selections);
       });
     });
 

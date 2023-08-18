@@ -62,7 +62,7 @@ p {
     display: grid;
     grid-template-columns: 2fr 1fr 2fr;
     justify-items: center;
-    gap: 10vw;
+    gap: 8vw;
     transition: width 0.5s;
 }
 
