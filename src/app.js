@@ -1,6 +1,6 @@
 const displayController = (() => {
   const startPage = document.querySelector('.startPage');
-  const gameScreen = document.querySelector('.gamePage');
+  const gamePage = document.querySelector('.gamePage');
   const startButton = document.querySelector('.vs a');
   const vs = document.querySelector('.text');
 
@@ -10,8 +10,7 @@ const displayController = (() => {
       button.classList.add('hover');
     });
     startButton.style.display = 'none';
-    vs.style.display = 'block';
-    gameScreen.style.display = 'none';
+    gamePage.style.display = 'none';
     startPage.style.display = 'grid';
   };
 
@@ -59,18 +58,45 @@ const displayController = (() => {
 
   const startGame = () => {
     startPage.style.display = 'none';
-    gameScreen.style.display = 'flex';
+    gamePage.style.display = 'flex';
   };
 
   const home = (buttons) => {
     resetButtons(buttons);
   };
 
-  return { selectButton, bothPicked, startBtn, startGame, home };
+  const fill = (cell) => {
+    if (!cell.hasChildNodes()) {
+      const choice = document.createElement('div');
+      choice.classList.add('fill');
+      choice.textContent = 'X';
+      cell.appendChild(choice);
+      cell.classList.remove('hover');
+    } else {
+      console.log(cell);
+      cell.classList.add('alreadyPicked');
+      setTimeout(() => {
+        cell.classList.remove('alreadyPicked');
+      }, 500);
+    }
+  };
+
+  return { selectButton, bothPicked, startBtn, startGame, home, fill };
 })();
 
 const game = (() => {
-  const start = (selections) => {};
+  const start = (selections) => {
+    const cells = Array.from(document.querySelectorAll('.cell'));
+    cells.forEach((cell) => {
+      cell.addEventListener(
+        'click',
+        () => {
+          displayController.fill(cell);
+        },
+        true
+      );
+    });
+  };
 
   const playerChoices = () => {
     const buttons = Array.from(document.querySelectorAll('.playerChoice'));
