@@ -37,8 +37,19 @@ p {
     animation: fadeIn .25s;
 }
 
-.pageSwitch {
-    animation: pageSwitch 0.5s;
+.pageLeave {
+    transform: scale(0.8);
+    opacity: 0;
+}
+
+.pageOpen {
+    animation: pageOpen 0.25s;
+}
+
+.startPage,
+.gamePage,
+.endGame {
+    transition: 0.25s;
 }
 
 /** START SCREEN **/
@@ -299,7 +310,6 @@ p {
     height: 100vh;
     padding: 25px;
     gap: 60px;
-    animation: fadeIn 0.5s;
 }
 
 /** SCORE AREA **/
@@ -429,6 +439,17 @@ p {
     }
     100% {
         transform: rotate(0deg);
+    }
+}
+
+@keyframes pageOpen {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
     }
 }
 

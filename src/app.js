@@ -11,8 +11,6 @@ const displayController = (() => {
     });
     startButton.style.display = 'none';
     vs.style.display = 'block';
-    gamePage.style.display = 'none';
-    startPage.style.display = 'grid';
   };
 
   const fade = (from, to) => {
@@ -28,11 +26,17 @@ const displayController = (() => {
     }, 250);
   };
 
-  const pageSwitch = (page) => {
-    page.classList.add('pageSwitch');
+  const pageSwitch = (from, to, display) => {
+    from.classList.add('pageLeave');
     setTimeout(() => {
-      page.classList.remove('pageSwitch');
-    }, 500);
+      from.style.display = 'none';
+      from.classList.remove('pageLeave');
+      to.style.display = display;
+      to.classList.add('pageOpen');
+      setTimeout(() => {
+        to.classList.remove('pageOpen');
+      }, 250);
+    }, 250);
   };
 
   const selectButton = (clicked) => {
@@ -81,13 +85,12 @@ const displayController = (() => {
   };
 
   const startGame = () => {
-    startPage.style.display = 'none';
-    gamePage.style.display = 'flex';
-    pageSwitch(gamePage);
+    pageSwitch(startPage, gamePage, 'flex');
   };
 
   const home = (buttons) => {
     resetButtons(buttons);
+    pageSwitch(gamePage, startPage, 'grid');
   };
 
   const fill = (cell) => {
