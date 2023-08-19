@@ -15,6 +15,32 @@ const displayController = (() => {
     startPage.style.display = 'grid';
   };
 
+  const fade = (type, element) => {
+    if (type === 'out') {
+      element.classList.add('fadeOut');
+      const anim = getComputedStyle(element);
+      console.log(anim);
+      setTimeout(() => {
+        element.classList.remove('fadeOut');
+        element.style.display = 'none';
+      }, 250);
+    }
+    if (type === 'in') {
+      element.classList.add('fadeIn');
+      element.style.display = 'block';
+      setTimeout(() => {
+        element.classList.remove('fadeIn');
+      }, 250);
+    }
+  };
+
+  const pageSwitch = (page) => {
+    page.classList.add('pageSwitch');
+    setTimeout(() => {
+      page.classList.remove('pageSwitch');
+    }, 500);
+  };
+
   const selectButton = (clicked) => {
     const parent = clicked.parentNode;
     const otherButton = Array.from(parent.children).filter(
@@ -35,29 +61,17 @@ const displayController = (() => {
     }
   };
 
-  const fade = (type, element) => {
-    if (type === 'out') {
-      element.classList.add('fadeOut');
-      element.style.display = 'none';
-      setTimeout(() => {
-        element.classList.remove('fadeOut');
-      }, 500);
-    } else if (type === 'in') {
-      element.style.display = 'block';
-      element.classList.add('fadeIn');
-      setTimeout(() => {
-        element.classList.remove('fadeIn');
-      }, 500);
-    }
-  };
-
   const startBtn = (ready) => {
     if (ready) {
       fade('out', vs);
-      fade('in', startButton);
+      setTimeout(() => {
+        fade('in', startButton);
+      }, 250);
     } else {
       fade('out', startButton);
-      fade('in', vs);
+      setTimeout(() => {
+        fade('in', vs);
+      }, 250);
     }
   };
 
@@ -65,6 +79,9 @@ const displayController = (() => {
     const current = document.querySelectorAll('.selected');
     if (!alreadyPicked) {
       return current;
+    }
+    if (current.length === 0) {
+      return null;
     }
     if (current.length === 2) {
       startBtn(true);
@@ -78,6 +95,7 @@ const displayController = (() => {
   const startGame = () => {
     startPage.style.display = 'none';
     gamePage.style.display = 'flex';
+    pageSwitch(gamePage);
   };
 
   const home = (buttons) => {
@@ -132,6 +150,7 @@ const game = (() => {
 
     homeButton.addEventListener('click', () => {
       displayController.home(buttons);
+      selections = null;
     });
   };
 

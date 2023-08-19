@@ -30,11 +30,15 @@ p {
 }
 
 .fadeOut {
-    animation: fadeOut .5s;
+    animation: fadeOut .25s;
 }
 
 .fadeIn {
-    animation: fadeIn .5s;
+    animation: fadeIn .25s;
+}
+
+.pageSwitch {
+    animation: pageSwitch 0.5s;
 }
 
 /** START SCREEN **/
@@ -295,6 +299,7 @@ p {
     height: 100vh;
     padding: 25px;
     gap: 60px;
+    animation: fadeIn 0.5s;
 }
 
 /** SCORE AREA **/
@@ -384,10 +389,12 @@ p {
 
 @keyframes fadeOut {
     0% {
+        transform: scale(1);
         opacity: 1;
     }
 
     100% {
+        transform: scale(0.9);
         opacity: 0;
     }
 }
