@@ -15,23 +15,17 @@ const displayController = (() => {
     startPage.style.display = 'grid';
   };
 
-  const fade = (type, element) => {
-    if (type === 'out') {
-      element.classList.add('fadeOut');
-      const anim = getComputedStyle(element);
-      console.log(anim);
+  const fade = (from, to) => {
+    from.classList.add('fadeOut');
+    setTimeout(() => {
+      from.style.display = 'none';
+      from.classList.remove('fadeOut');
+      to.style.display = 'block';
+      to.classList.add('fadeIn');
       setTimeout(() => {
-        element.classList.remove('fadeOut');
-        element.style.display = 'none';
+        to.classList.remove('fadeIn');
       }, 250);
-    }
-    if (type === 'in') {
-      element.classList.add('fadeIn');
-      element.style.display = 'block';
-      setTimeout(() => {
-        element.classList.remove('fadeIn');
-      }, 250);
-    }
+    }, 250);
   };
 
   const pageSwitch = (page) => {
@@ -63,15 +57,9 @@ const displayController = (() => {
 
   const startBtn = (ready) => {
     if (ready) {
-      fade('out', vs);
-      setTimeout(() => {
-        fade('in', startButton);
-      }, 250);
+      fade(vs, startButton);
     } else {
-      fade('out', startButton);
-      setTimeout(() => {
-        fade('in', vs);
-      }, 250);
+      fade(startButton, vs);
     }
   };
 
