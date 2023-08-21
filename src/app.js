@@ -4,7 +4,7 @@ const displayController = (() => {
   const startButton = document.querySelector('.vs a');
   const vs = document.querySelector('.text');
 
-  const resetButtons = (buttons) => {
+  const reset = (buttons) => {
     buttons.forEach((button) => {
       button.classList.remove('selected');
       button.classList.add('hover');
@@ -89,7 +89,7 @@ const displayController = (() => {
   };
 
   const home = (buttons) => {
-    resetButtons(buttons);
+    reset(buttons);
     pageSwitch(gamePage, startPage, 'grid');
   };
 
@@ -111,41 +111,60 @@ const displayController = (() => {
   return { selectButton, bothPicked, startBtn, startGame, home, fill };
 })();
 
+const GameBoard = () => {
+  let board = [];
+
+  const initializeBoard = () => {
+    const cells = document.querySelectorAll('.cell');
+    board = [];
+
+    // Fill cells with objects containing cell number and claimed property for which player
+    // selected it
+    for (let i = 0; i < 3; i++) {
+      const row = [];
+      board.push(row);
+
+      for (let j = 0; j < 3; j++) {
+        const cell = {
+          // Number the cells 1 - 9
+          num: 3 * i + (j + 1),
+          claimed: null,
+        };
+        row.push(cell);
+      }
+    }
+  };
+
+  return { initializeBoard };
+};
+
 const game = (() => {
-  const start = (selections) => {
-    const cells = Array.from(document.querySelectorAll('.cell'));
-    cells.forEach((cell) => {
-      cell.addEventListener('click', () => {
-        displayController.fill(cell);
-      });
-    });
+  let selections = null;
+  const buttons = Array.from(document.querySelectorAll('.playerChoice'));
+  const startButton = document.querySelector('.vs a');
+  const homeButton = document.querySelector('.homeButton');
+
+  const reset = () => {};
+
+  const start = () => {
+    const gameBoard = GameBoard();
+    gameBoard.initializeBoard();
   };
 
-  const playerChoices = () => {
-    const buttons = Array.from(document.querySelectorAll('.playerChoice'));
-    const startButton = document.querySelector('.vs a');
-    const homeButton = document.querySelector('.homeButton');
-    let selections = null;
-
-    buttons.forEach((button) => {
-      button.addEventListener('click', (e) => {
-        displayController.selectButton(e.target);
-        selections = displayController.bothPicked(selections);
-      });
+  buttons.forEach((button) => {
+    button.addEventListener('click', (e) => {
+      displayController.selectButton(e.target);
+      selections = displayController.bothPicked(selections);
     });
+  });
 
-    startButton.addEventListener('click', () => {
-      displayController.startGame();
-      start(selections);
-    });
+  startButton.addEventListener('click', () => {
+    displayController.startGame();
+    start();
+  });
 
-    homeButton.addEventListener('click', () => {
-      displayController.home(buttons);
-      selections = null;
-    });
-  };
-
-  return { playerChoices };
+  homeButton.addEventListener('click', () => {
+    displayController.home(buttons);
+    reset();
+  });
 })();
-
-game.playerChoices();
