@@ -26,7 +26,7 @@ const displayController = (() => {
     }, 250);
   };
 
-  const pageSwitch = (from, to, display) => {
+  const pageSwitch = (from, to) => {
     from.classList.add('pageLeave');
     setTimeout(() => {
       from.style.display = 'none';
@@ -111,11 +111,19 @@ const displayController = (() => {
   return { selectButton, bothPicked, startBtn, startGame, home, fill };
 })();
 
-const GameBoard = () => {
+const GameBoard = (() => {
+  const cells = document.querySelectorAll('.cell');
   let board = [];
 
+  const listeners = () => {
+    for (let i = 0; i < cells.length; i++) {
+      cells[i].addEventListener('click', (e) => {
+        displayController.fill(e.target);
+      });
+    }
+  };
+
   const initializeBoard = () => {
-    const cells = document.querySelectorAll('.cell');
     board = [];
 
     // Fill cells with objects containing cell number and claimed property for which player
@@ -125,18 +133,29 @@ const GameBoard = () => {
       board.push(row);
 
       for (let j = 0; j < 3; j++) {
+        const cellNum = 3 * i + (j + 1);
         const cell = {
           // Number the cells 1 - 9
-          num: 3 * i + (j + 1),
+          num: cellNum,
+          div: cells[cellNum - 1],
           claimed: null,
         };
         row.push(cell);
       }
     }
+    listeners();
   };
 
-  return { initializeBoard };
-};
+  const reset = () => {
+    for (let i = 0; i < cells.length; i++) {
+      cells[i].removeEventListener('click', (e) => {
+        displayController.fill(e.target);
+      });
+    }
+  };
+
+  return { initializeBoard, reset };
+})();
 
 const game = (() => {
   let selections = null;
@@ -144,11 +163,14 @@ const game = (() => {
   const startButton = document.querySelector('.vs a');
   const homeButton = document.querySelector('.homeButton');
 
-  const reset = () => {};
+  const reset = () => {
+    selections = null;
+    displayController.home(buttons);
+    GameBoard.reset();
+  };
 
   const start = () => {
-    const gameBoard = GameBoard();
-    gameBoard.initializeBoard();
+    GameBoard.initializeBoard();
   };
 
   buttons.forEach((button) => {
@@ -163,8 +185,5 @@ const game = (() => {
     start();
   });
 
-  homeButton.addEventListener('click', () => {
-    displayController.home(buttons);
-    reset();
-  });
+  homeButton.addEventListener('click', reset);
 })();
