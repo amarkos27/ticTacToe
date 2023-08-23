@@ -117,8 +117,8 @@ const GameBoard = (() => {
 
   const listeners = () => {
     for (let i = 0; i < cells.length; i++) {
-      cells[i].addEventListener('click', (e) => {
-        displayController.fill(e.target);
+      cells[i].addEventListener('click', () => {
+        displayController.fill(cells[i]);
       });
     }
   };
@@ -146,15 +146,7 @@ const GameBoard = (() => {
     listeners();
   };
 
-  const reset = () => {
-    for (let i = 0; i < cells.length; i++) {
-      cells[i].removeEventListener('click', (e) => {
-        displayController.fill(e.target);
-      });
-    }
-  };
-
-  return { initializeBoard, reset };
+  return { initializeBoard };
 })();
 
 const game = (() => {
@@ -166,24 +158,29 @@ const game = (() => {
   const reset = () => {
     selections = null;
     displayController.home(buttons);
-    GameBoard.reset();
   };
 
-  const start = () => {
+  const start = () => {};
+
+  const init = () => {
     GameBoard.initializeBoard();
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', (e) => {
+        displayController.selectButton(e.target);
+        selections = displayController.bothPicked(selections);
+      });
+    });
+
+    startButton.addEventListener('click', () => {
+      displayController.startGame();
+      start();
+    });
+
+    homeButton.addEventListener('click', reset);
   };
 
-  buttons.forEach((button) => {
-    button.addEventListener('click', (e) => {
-      displayController.selectButton(e.target);
-      selections = displayController.bothPicked(selections);
-    });
-  });
-
-  startButton.addEventListener('click', () => {
-    displayController.startGame();
-    start();
-  });
-
-  homeButton.addEventListener('click', reset);
+  return { init };
 })();
+
+game.init();
