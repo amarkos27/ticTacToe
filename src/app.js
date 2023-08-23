@@ -26,7 +26,7 @@ const displayController = (() => {
     }, 250);
   };
 
-  const pageSwitch = (from, to) => {
+  const pageSwitch = (from, to, display) => {
     from.classList.add('pageLeave');
     setTimeout(() => {
       from.style.display = 'none';
