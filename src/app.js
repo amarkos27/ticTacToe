@@ -157,8 +157,8 @@ const GameBoard = (() => {
 })();
 
 const Player = (type, letter) => {
-  console.log(type, letter);
-  return { type };
+  let score;
+  return { type, letter, score };
 };
 
 const game = (() => {

@@ -107,6 +107,7 @@ p {
     display: flex;
     align-items: center;
     font-size: 1.5em;
+    letter-spacing: .2em;
 }
 
 .playerCard iframe {
