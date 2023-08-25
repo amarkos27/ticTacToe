@@ -39,6 +39,8 @@ const displayController = (() => {
     }, 250);
   };
 
+  // Only one button can be selected at a time. If one is selected,
+  // remove the hover effect for the other button.
   const selectButton = (clicked) => {
     const parent = clicked.parentNode;
     const otherButton = Array.from(parent.children).filter(
@@ -67,7 +69,7 @@ const displayController = (() => {
     }
   };
 
-  const bothPicked = (alreadyPicked) => {
+  const areBothPicked = (alreadyPicked) => {
     const current = document.querySelectorAll('.selected');
     if (!alreadyPicked) {
       return current;
@@ -93,11 +95,17 @@ const displayController = (() => {
     pageSwitch(gamePage, startPage, 'grid');
   };
 
-  const fill = (cell) => {
+  const setPlayers = (type1, type2) => {
+    const players = document.querySelectorAll('.player');
+    players[0].textContent = type1;
+    players[1].textContent = type2;
+  };
+
+  const fill = (cell, letter) => {
     if (!cell.hasChildNodes()) {
       const choice = document.createElement('div');
       choice.classList.add('fill');
-      choice.textContent = 'X';
+      choice.textContent = letter;
       cell.appendChild(choice);
       cell.classList.remove('hover');
     } else {
@@ -108,20 +116,21 @@ const displayController = (() => {
     }
   };
 
-  return { selectButton, bothPicked, startBtn, startGame, home, fill };
+  return {
+    selectButton,
+    areBothPicked,
+    startBtn,
+    startGame,
+    home,
+    setPlayers,
+    fill,
+  };
 })();
 
 const GameBoard = (() => {
-  const cells = document.querySelectorAll('.cell');
   let board = [];
 
-  const listeners = () => {
-    for (let i = 0; i < cells.length; i++) {
-      cells[i].addEventListener('click', () => {
-        displayController.fill(cells[i]);
-      });
-    }
-  };
+  const gameWon = () => {};
 
   const initializeBoard = () => {
     board = [];
@@ -137,17 +146,20 @@ const GameBoard = (() => {
         const cell = {
           // Number the cells 1 - 9
           num: cellNum,
-          div: cells[cellNum - 1],
           claimed: null,
         };
         row.push(cell);
       }
     }
-    listeners();
   };
 
-  return { initializeBoard };
+  return { gameWon, initializeBoard };
 })();
+
+const Player = (type, letter) => {
+  console.log(type, letter);
+  return { type };
+};
 
 const game = (() => {
   let selections = null;
@@ -155,12 +167,19 @@ const game = (() => {
   const startButton = document.querySelector('.vs a');
   const homeButton = document.querySelector('.homeButton');
 
+  const active = () => {};
+
+  const start = () => {
+    const player1 = Player(selections[0].textContent, 'X');
+    const player2 = Player(selections[1].textContent, 'O');
+    displayController.setPlayers(player1.type, player2.type);
+    active(player1, player2);
+  };
+
   const reset = () => {
     selections = null;
     displayController.home(buttons);
   };
-
-  const start = () => {};
 
   const init = () => {
     GameBoard.initializeBoard();
@@ -168,7 +187,7 @@ const game = (() => {
     buttons.forEach((button) => {
       button.addEventListener('click', (e) => {
         displayController.selectButton(e.target);
-        selections = displayController.bothPicked(selections);
+        selections = displayController.areBothPicked(selections);
       });
     });
 
