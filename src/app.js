@@ -77,10 +77,9 @@ const displayController = (() => {
     if (current.length === 0) {
       return null;
     }
-    if (current.length === 2) {
+    if (current.length > alreadyPicked.length) {
       startBtn(true);
-    }
-    if (alreadyPicked.length > current.length) {
+    } else if (alreadyPicked.length > current.length) {
       startBtn(false);
     }
     return current;
@@ -133,8 +132,6 @@ const GameBoard = (() => {
   const gameWon = () => {};
 
   const initializeBoard = () => {
-    board = [];
-
     // Fill cells with objects containing cell number and claimed property for which player
     // selected it
     for (let i = 0; i < 3; i++) {
@@ -157,31 +154,60 @@ const GameBoard = (() => {
 })();
 
 const Player = (type, letter) => {
-  let score;
+  let score = 0;
+
   return { type, letter, score };
 };
 
 const game = (() => {
-  let selections = null;
   const buttons = Array.from(document.querySelectorAll('.playerChoice'));
-  const startButton = document.querySelector('.vs a');
-  const homeButton = document.querySelector('.homeButton');
-
-  const active = () => {};
+  let selections = null;
+  const cells = Array.from(document.querySelectorAll('.cell'));
 
   const start = () => {
     const player1 = Player(selections[0].textContent, 'X');
     const player2 = Player(selections[1].textContent, 'O');
     displayController.setPlayers(player1.type, player2.type);
-    active(player1, player2);
+
+    return { player1, player2 };
+  };
+
+  const active = (player1, player2) => {
+    // Listener needs to be added this way so that the cell is always the element being interacted
+    // with, not the div element added on click
+
+    let turn = 0;
+    cells.forEach((cell) => {
+      cell.addEventListener('click', () => {
+        if (turn === 0) {
+          displayController.fill(cell, player1.letter);
+          turn = 1;
+        } else {
+          displayController.fill(cell, player2.letter);
+          turn = 0;
+        }
+      });
+    });
+  };
+
+  const removeListeners = () => {
+    // Remove all click listeners from cells to prevent multiple instances of the same listener
+    // being added to the same cell
+    const board = document.querySelector('.gameBoard');
+    const newBoard = board.cloneNode(true);
+    board.parentNode.replaceChild(newBoard, board);
   };
 
   const reset = () => {
     selections = null;
     displayController.home(buttons);
+    removeListeners();
   };
 
   const init = () => {
+    const startButton = document.querySelector('.vs a');
+    const homeButton = document.querySelector('.homeButton');
+
     GameBoard.initializeBoard();
 
     buttons.forEach((button) => {
@@ -193,7 +219,8 @@ const game = (() => {
 
     startButton.addEventListener('click', () => {
       displayController.startGame();
-      start();
+      const { player1, player2 } = start();
+      active(player1, player2);
     });
 
     homeButton.addEventListener('click', reset);
