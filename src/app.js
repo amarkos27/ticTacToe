@@ -1,5 +1,6 @@
 const displayController = (() => {
   const startPage = document.querySelector('.startPage');
+  const loader = document.querySelector('.loader');
   const gamePage = document.querySelector('.gamePage');
   const startButton = document.querySelector('.vs a');
   const vs = document.querySelector('.text');
@@ -19,9 +20,9 @@ const displayController = (() => {
       from.style.display = 'none';
       from.classList.remove('fadeOut');
       to.style.display = 'block';
-      to.classList.add('fadeIn');
+      to.classList.add('fadeInButton');
       setTimeout(() => {
-        to.classList.remove('fadeIn');
+        to.classList.remove('fadeInButton');
       }, 250);
     }, 250);
   };
@@ -85,8 +86,33 @@ const displayController = (() => {
     return current;
   };
 
+  const load = () => {
+    let count = 3;
+    const countDown = () => {
+      const counter = document.createElement('div');
+      counter.classList.add('count');
+      counter.textContent = count;
+      loader.appendChild(counter);
+
+      setTimeout(() => {
+        loader.removeChild(counter);
+        count--;
+        if (count > 0) {
+          countDown();
+        }
+      }, 1000);
+    };
+
+    countDown();
+  };
+
   const startGame = () => {
-    pageSwitch(startPage, gamePage, 'flex');
+    pageSwitch(startPage, loader, 'flex');
+    load();
+    setTimeout(() => {
+      // Allow for loading animation to finish before switching pages
+      pageSwitch(loader, gamePage, 'flex');
+    }, 3000);
   };
 
   const home = (buttons) => {
@@ -120,6 +146,7 @@ const displayController = (() => {
     areBothPicked,
     startBtn,
     startGame,
+    load,
     home,
     setPlayers,
     fill,
@@ -162,7 +189,6 @@ const Player = (type, letter) => {
 const game = (() => {
   const buttons = Array.from(document.querySelectorAll('.playerChoice'));
   let selections = null;
-  const cells = Array.from(document.querySelectorAll('.cell'));
 
   const start = () => {
     const player1 = Player(selections[0].textContent, 'X');
@@ -175,8 +201,9 @@ const game = (() => {
   const active = (player1, player2) => {
     // Listener needs to be added this way so that the cell is always the element being interacted
     // with, not the div element added on click
-
+    const cells = Array.from(document.querySelectorAll('.cell'));
     let turn = 0;
+
     cells.forEach((cell) => {
       cell.addEventListener('click', () => {
         if (turn === 0) {
@@ -217,7 +244,8 @@ const game = (() => {
       });
     });
 
-    startButton.addEventListener('click', () => {
+    startButton.addEventListener('click', (e) => {
+      e.preventDefault();
       displayController.startGame();
       const { player1, player2 } = start();
       active(player1, player2);
@@ -230,3 +258,4 @@ const game = (() => {
 })();
 
 game.init();
+displayController.load();

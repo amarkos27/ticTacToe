@@ -37,6 +37,10 @@ p {
     animation: fadeIn 0.25s;
 }
 
+.fadeInButton {
+    animation: fadeInButton 0.25s;
+}
+
 .pageLeave {
     animation: pageLeave 0.25s
 }
@@ -295,6 +299,19 @@ p {
     bottom: 50%;
 }
 
+/** LOADER **/
+.loader {
+    height: 85vh;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    font-size: 5em;
+}
+
+.count {
+    animation: count 1s;
+}
+
 /** GAME SCREEN **/
 
 .gamePage {
@@ -411,6 +428,30 @@ p {
 
     to {
         opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeInButton {
+    from {
+        opacity: 0;
+        transform: scale(.5);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes count {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.6);
+    }
+    100% {
         transform: scale(1);
     }
 }
