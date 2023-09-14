@@ -337,17 +337,20 @@ p {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 70px;
-    height: 100%;
     gap: 10px;
+}
+
+.player {
+    white-space: nowrap;
+    letter-spacing: 0.1vw;
 }
 
 .score {
     background: var(--background);
     border-radius: 5px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.25);
-    height: 100%;
-    width: 100%;
+    width: 60px;
+    height: 60px;
     padding: 5px;
     display: flex;
     justify-content: center;

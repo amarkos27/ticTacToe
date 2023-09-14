@@ -122,8 +122,8 @@ const displayController = (() => {
 
   const setPlayers = (type1, type2) => {
     const players = document.querySelectorAll('.player');
-    players[0].textContent = type1;
-    players[1].textContent = type2;
+    players[0].textContent = `${type1} 1`;
+    players[1].textContent = `${type2} 2`;
   };
 
   const fill = (cell, letter) => {
@@ -146,7 +146,6 @@ const displayController = (() => {
     areBothPicked,
     startBtn,
     startGame,
-    load,
     home,
     setPlayers,
     fill,
@@ -154,7 +153,7 @@ const displayController = (() => {
 })();
 
 const GameBoard = (() => {
-  let board = [];
+  const board = [];
 
   const gameWon = () => {};
 
@@ -258,4 +257,3 @@ const game = (() => {
 })();
 
 game.init();
-displayController.load();
