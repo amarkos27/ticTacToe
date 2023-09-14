@@ -9,7 +9,7 @@
 :root {
     --card-dimension: max(22vw, 280px);
     --background: #f4f4f4;
-    --board-dimension: max(35vw, 300px);
+    --board-dimension: max(30vw, 300px);
     --color: black;
 }
 
@@ -382,15 +382,14 @@ p {
     border: 2px solid var(--background);
     border-radius: 15px;
     cursor: pointer;
-    transition: 0.2s;
+    transition: 0.4s;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
 .cell.hover:hover {
-    box-shadow: inset 0 0 20px #fff;
-    transform: scale(1.07);
+    box-shadow: inset 0 0 10vw #fff;
 }
 
 .cell.hover:active {
