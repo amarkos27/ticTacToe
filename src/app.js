@@ -134,18 +134,22 @@ const displayController = (() => {
   };
 
   const fill = (cell, letter) => {
+    // Return 1 if successfully filled, 0 if the cell was already filled in order to ensure
+    // proper turn management
     if (!cell.hasChildNodes()) {
       const choice = document.createElement('div');
       choice.classList.add('fill');
       choice.textContent = letter;
       cell.appendChild(choice);
       cell.classList.remove('hover');
-    } else {
-      cell.classList.add('alreadyPicked');
-      setTimeout(() => {
-        cell.classList.remove('alreadyPicked');
-      }, 500);
+      return 1;
     }
+    cell.classList.add('alreadyPicked');
+    setTimeout(() => {
+      cell.classList.remove('alreadyPicked');
+    }, 500);
+
+    return 0;
   };
 
   return {
@@ -209,15 +213,22 @@ const game = (() => {
     // with, not the div element added on click
     const cells = Array.from(document.querySelectorAll('.cell'));
     let turn = 0;
+    let count = 0;
 
     cells.forEach((cell) => {
       cell.addEventListener('click', () => {
         if (turn === 0) {
-          displayController.fill(cell, player1.letter);
-          turn = 1;
+          const success = displayController.fill(cell, player1.letter);
+          if (success) {
+            turn = 1;
+            count++;
+          }
         } else {
-          displayController.fill(cell, player2.letter);
-          turn = 0;
+          const success = displayController.fill(cell, player2.letter);
+          if (success) {
+            turn = 0;
+            count++;
+          }
         }
       });
     });
