@@ -166,8 +166,6 @@ const displayController = (() => {
 const GameBoard = (() => {
   const board = [];
 
-  const gameWon = () => {};
-
   const initializeBoard = () => {
     // Fill cells with objects containing cell number and claimed property for which player
     // selected it
@@ -187,7 +185,25 @@ const GameBoard = (() => {
     }
   };
 
-  return { gameWon, initializeBoard };
+  const findCell = (clicked) => {
+    // Find cell with the corresponding number
+    for (let i = 0; i < board.length; i++) {
+      for (let j = 0; j < board[i].length; j++) {
+        if (clicked === board[i][j].num) {
+          return [i, j];
+        }
+      }
+    }
+
+    return -1;
+  };
+
+  const fill = (clicked, letter) => {
+    const [row, col] = findCell(clicked);
+    board[row][col].claimed = letter;
+  };
+
+  return { initializeBoard, fill };
 })();
 
 const Player = (type, letter) => {
@@ -215,17 +231,20 @@ const game = (() => {
     let turn = 0;
     let count = 0;
 
-    cells.forEach((cell) => {
+    cells.forEach((cell, i) => {
+      const cellNum = i + 1;
       cell.addEventListener('click', () => {
         if (turn === 0) {
           const success = displayController.fill(cell, player1.letter);
           if (success) {
+            GameBoard.fill(cellNum, player1.letter);
             turn = 1;
             count++;
           }
         } else {
           const success = displayController.fill(cell, player2.letter);
           if (success) {
+            GameBoard.fill(cellNum, player2.letter);
             turn = 0;
             count++;
           }
