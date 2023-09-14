@@ -9,7 +9,7 @@
 :root {
     --card-dimension: max(22vw, 280px);
     --background: #f4f4f4;
-    --board-dimension: max(35vw, 300px);
+    --board-dimension: max(30vw, 300px);
     --color: black;
 }
 
@@ -30,15 +30,23 @@ p {
 }
 
 .fadeOut {
-    animation: fadeOut .25s;
+    animation: fadeOut 0.25s;
 }
 
 .fadeIn {
-    animation: fadeIn .25s;
+    animation: fadeIn 0.25s;
 }
 
-.pageSwitch {
-    animation: pageSwitch 0.5s;
+.fadeInButton {
+    animation: fadeInButton 0.25s;
+}
+
+.pageLeave {
+    animation: pageLeave 0.25s
+}
+
+.pageOpen {
+    animation: pageOpen 0.25s;
 }
 
 /** START SCREEN **/
@@ -103,6 +111,7 @@ p {
     display: flex;
     align-items: center;
     font-size: 1.5em;
+    letter-spacing: .2em;
 }
 
 .playerCard iframe {
@@ -290,6 +299,19 @@ p {
     bottom: 50%;
 }
 
+/** LOADER **/
+.loader {
+    height: 85vh;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    font-size: 5em;
+}
+
+.count {
+    animation: count 1s;
+}
+
 /** GAME SCREEN **/
 
 .gamePage {
@@ -299,7 +321,6 @@ p {
     height: 100vh;
     padding: 25px;
     gap: 60px;
-    animation: fadeIn 0.5s;
 }
 
 /** SCORE AREA **/
@@ -309,24 +330,27 @@ p {
     align-items: center;
     justify-content: center;
     height: 10vh;
-    gap: 20vw;
+    gap: 15vw;
 }
 
 .scoreBlock {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: fit-content;
-    height: 100%;
     gap: 10px;
+}
+
+.player {
+    white-space: nowrap;
+    letter-spacing: 0.1vw;
 }
 
 .score {
     background: var(--background);
     border-radius: 5px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.25);
-    height: 100%;
-    width: 100%;
+    width: 60px;
+    height: 60px;
     padding: 5px;
     display: flex;
     justify-content: center;
@@ -361,15 +385,14 @@ p {
     border: 2px solid var(--background);
     border-radius: 15px;
     cursor: pointer;
-    transition: 0.2s;
+    transition: 0.4s;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
 .cell.hover:hover {
-    box-shadow: inset 0 0 20px #fff;
-    transform: scale(1.07);
+    box-shadow: inset 0 0 10vw #fff;
 }
 
 .cell.hover:active {
@@ -411,6 +434,30 @@ p {
     }
 }
 
+@keyframes fadeInButton {
+    from {
+        opacity: 0;
+        transform: scale(.5);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes count {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.6);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
 @keyframes wiggle {
     0% {
         transform: rotate(0deg);
@@ -429,6 +476,28 @@ p {
     }
     100% {
         transform: rotate(0deg);
+    }
+}
+
+@keyframes pageLeave {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+}
+
+@keyframes pageOpen {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
     }
 }
 
