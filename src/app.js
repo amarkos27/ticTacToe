@@ -87,6 +87,7 @@ const displayController = (() => {
   };
 
   const load = () => {
+    // Allow for there to be a delay in the recursive loop to simulate a countdown
     let count = 3;
     const countDown = () => {
       const counter = document.createElement('div');
@@ -122,8 +123,14 @@ const displayController = (() => {
 
   const setPlayers = (type1, type2) => {
     const players = document.querySelectorAll('.player');
-    players[0].textContent = `${type1} 1`;
-    players[1].textContent = `${type2} 2`;
+
+    if (type1 === type2) {
+      players[0].textContent = `${type1} 1`;
+      players[1].textContent = `${type2} 2`;
+    } else {
+      players[0].textContent = type1;
+      players[1].textContent = type2;
+    }
   };
 
   const fill = (cell, letter) => {
