@@ -142,6 +142,7 @@ const displayController = (() => {
       choice.textContent = letter;
       cell.appendChild(choice);
       cell.classList.remove('hover');
+
       return 1;
     }
     cell.classList.add('alreadyPicked');
@@ -201,7 +202,10 @@ const GameBoard = (() => {
   const fill = (clicked, letter) => {
     const [row, col] = findCell(clicked);
     board[row][col].claimed = letter;
+    console.log(board);
   };
+
+  const checkWin = () => {};
 
   return { initializeBoard, fill };
 })();
@@ -230,6 +234,7 @@ const game = (() => {
     const cells = Array.from(document.querySelectorAll('.cell'));
     let turn = 0;
     let count = 0;
+    let gameWon = false;
 
     cells.forEach((cell, i) => {
       const cellNum = i + 1;
