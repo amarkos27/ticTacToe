@@ -228,31 +228,41 @@ const game = (() => {
     return { player1, player2 };
   };
 
+  // if (turn === 0) {
+  //   const success = displayController.fill(cell, player1.letter);
+  //   if (success) {
+  //     GameBoard.fill(cellNum, player1.letter);
+  //     turn = 1;
+  //     count++;
+  //   }
+  // } else {
+  //   const success = displayController.fill(cell, player2.letter);
+  //   if (success) {
+  //     GameBoard.fill(cellNum, player2.letter);
+  //     turn = 0;
+  //     count++;
+  //   }
+  //
+
   const active = (player1, player2) => {
     // Listener needs to be added this way so that the cell is always the element being interacted
     // with, not the div element added on click
     const cells = Array.from(document.querySelectorAll('.cell'));
-    let turn = 0;
+    let xTurn = true;
     let count = 0;
     let gameWon = false;
+    let currentPlayer = null;
 
     cells.forEach((cell, i) => {
       const cellNum = i + 1;
       cell.addEventListener('click', () => {
-        if (turn === 0) {
-          const success = displayController.fill(cell, player1.letter);
-          if (success) {
-            GameBoard.fill(cellNum, player1.letter);
-            turn = 1;
-            count++;
-          }
-        } else {
-          const success = displayController.fill(cell, player2.letter);
-          if (success) {
-            GameBoard.fill(cellNum, player2.letter);
-            turn = 0;
-            count++;
-          }
+        currentPlayer = xTurn ? player1 : player2;
+        const success = displayController.fill(cell, currentPlayer.letter);
+
+        if (success) {
+          GameBoard.fill(cellNum, currentPlayer.letter);
+          xTurn = !xTurn;
+          count++;
         }
       });
     });
