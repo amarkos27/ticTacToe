@@ -170,18 +170,19 @@ const GameBoard = (() => {
   const initializeBoard = () => {
     // Fill cells with objects containing cell number and claimed property for which player
     // selected it
+    let cellNum = 1;
     for (let i = 0; i < 3; i++) {
       const row = [];
       board.push(row);
 
       for (let j = 0; j < 3; j++) {
-        const cellNum = 3 * i + (j + 1);
         const cell = {
           // Number the cells 1 - 9
           num: cellNum,
           claimed: null,
         };
         row.push(cell);
+        cellNum++;
       }
     }
   };
@@ -205,9 +206,30 @@ const GameBoard = (() => {
     console.log(board);
   };
 
-  const checkWin = () => {};
+  const findAdjacents = (i, j) => {
+    const adjacents = [];
+    for (let dx = i > 0 ? -1 : 0; dx <= (i < board.length - 1 ? 1 : 0); ++dx) {
+      for (
+        let dy = j > 0 ? -1 : 0;
+        dy <= (j < board[0].length - 1 ? 1 : 0);
+        ++dy
+      ) {
+        if (dx !== 0 || dy !== 0) {
+          adjacents.push(board[i + dx][j + dy]);
+        }
+      }
+    }
 
-  return { initializeBoard, fill };
+    return adjacents;
+  };
+
+  const checkWin = (clicked) => {
+    const [i, j] = findCell(clicked);
+    const adjacents = findAdjacents(i, j);
+    console.log(adjacents);
+  };
+
+  return { initializeBoard, fill, checkWin };
 })();
 
 const Player = (type, letter) => {
@@ -221,51 +243,12 @@ const game = (() => {
   let selections = null;
 
   const start = () => {
+    displayController.startGame();
     const player1 = Player(selections[0].textContent, 'X');
     const player2 = Player(selections[1].textContent, 'O');
     displayController.setPlayers(player1.type, player2.type);
 
     return { player1, player2 };
-  };
-
-  // if (turn === 0) {
-  //   const success = displayController.fill(cell, player1.letter);
-  //   if (success) {
-  //     GameBoard.fill(cellNum, player1.letter);
-  //     turn = 1;
-  //     count++;
-  //   }
-  // } else {
-  //   const success = displayController.fill(cell, player2.letter);
-  //   if (success) {
-  //     GameBoard.fill(cellNum, player2.letter);
-  //     turn = 0;
-  //     count++;
-  //   }
-  //
-
-  const active = (player1, player2) => {
-    // Listener needs to be added this way so that the cell is always the element being interacted
-    // with, not the div element added on click
-    const cells = Array.from(document.querySelectorAll('.cell'));
-    let xTurn = true;
-    let count = 0;
-    let gameWon = false;
-    let currentPlayer = null;
-
-    cells.forEach((cell, i) => {
-      const cellNum = i + 1;
-      cell.addEventListener('click', () => {
-        currentPlayer = xTurn ? player1 : player2;
-        const success = displayController.fill(cell, currentPlayer.letter);
-
-        if (success) {
-          GameBoard.fill(cellNum, currentPlayer.letter);
-          xTurn = !xTurn;
-          count++;
-        }
-      });
-    });
   };
 
   const removeListeners = () => {
@@ -280,6 +263,43 @@ const game = (() => {
     selections = null;
     displayController.home(buttons);
     removeListeners();
+  };
+
+  const active = (player1, player2) => {
+    // Listener needs to be added this way so that the cell is always the element being interacted
+    // with, not the div element added on click
+    const cells = Array.from(document.querySelectorAll('.cell'));
+    let xTurn = true;
+    let count = 0;
+    let gameWon = false;
+    let currentPlayer = null;
+
+    cells.forEach((cell, i) => {
+      // User inputs drive the program forward
+      const cellNum = i + 1;
+      cell.addEventListener('click', () => {
+        currentPlayer = xTurn ? player1 : player2;
+        const success = displayController.fill(cell, currentPlayer.letter);
+
+        if (success) {
+          GameBoard.fill(cellNum, currentPlayer.letter);
+          xTurn = !xTurn;
+          count++;
+
+          gameWon = GameBoard.checkWin(cellNum);
+
+          if (count > 4) {
+            // if gameWon
+            // currentPlayer.score += 1;
+            // displayController.addPoint(currentPlayer); -- player needs to store scoreBlock
+            // if currentPlayer.score === 2
+            // endGame()
+            // else
+            // GameBoard.reset()
+          }
+        }
+      });
+    });
   };
 
   const init = () => {
@@ -297,7 +317,6 @@ const game = (() => {
 
     startButton.addEventListener('click', (e) => {
       e.preventDefault();
-      displayController.startGame();
       const { player1, player2 } = start();
       active(player1, player2);
     });
