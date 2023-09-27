@@ -203,30 +203,37 @@ const GameBoard = (() => {
   const fill = (clicked, letter) => {
     const [row, col] = findCell(clicked);
     board[row][col].claimed = letter;
-    console.log(board);
   };
 
-  const findAdjacents = (i, j) => {
-    const adjacents = [];
+  const findClaimed = (i, j) => {
+    // Find all cells claimed by the same letter
+    const claimed = [];
     for (let dx = i > 0 ? -1 : 0; dx <= (i < board.length - 1 ? 1 : 0); ++dx) {
       for (
         let dy = j > 0 ? -1 : 0;
         dy <= (j < board[0].length - 1 ? 1 : 0);
         ++dy
       ) {
-        if (dx !== 0 || dy !== 0) {
-          adjacents.push(board[i + dx][j + dy]);
+        if (
+          (dx !== 0 || dy !== 0) &&
+          board[i + dx][j + dy].claimed === board[i][j].claimed
+        ) {
+          if (board[i + dx][j + dy].num > board[i][j].num) {
+            // Add currently clicked to claimed in the proper order
+            claimed.push(board[i][j]);
+          }
+          claimed.push(board[i + dx][j + dy]);
         }
       }
     }
 
-    return adjacents;
+    return claimed;
   };
 
   const checkWin = (clicked) => {
     const [i, j] = findCell(clicked);
-    const adjacents = findAdjacents(i, j);
-    console.log(adjacents);
+    const claimed = findClaimed(i, j);
+    console.log(claimed);
   };
 
   return { initializeBoard, fill, checkWin };
@@ -286,9 +293,8 @@ const game = (() => {
           xTurn = !xTurn;
           count++;
 
-          gameWon = GameBoard.checkWin(cellNum);
-
           if (count > 4) {
+            gameWon = GameBoard.checkWin(cellNum);
             // if gameWon
             // currentPlayer.score += 1;
             // displayController.addPoint(currentPlayer); -- player needs to store scoreBlock
