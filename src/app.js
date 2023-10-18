@@ -255,11 +255,24 @@ const GameBoard = (() => {
     const claimed = findClaimed(i, j);
     let k = null;
     let l = null;
+    let diffI = null;
+    let diffJ = null;
     let won = false;
     won = isInBetween(i, j, claimed);
 
-    if (!won) {
+    for (let index = 0; index < claimed.length; index++) {
+      [k, l] = claimed[index];
+      diffI = k - i;
+      diffJ = l - j;
+      if (k + diffI > 2 || k + diffI < 0 || l + diffJ > 2 || l + diffJ < 0) {
+        continue;
+      }
+      if (board[i][j].claimed === board[k + diffI][l + diffJ].claimed) {
+        won = true;
+      }
     }
+
+    return won;
   };
 
   return { initializeBoard, fill, checkWin };
