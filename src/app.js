@@ -187,11 +187,11 @@ const GameBoard = (() => {
     }
   };
 
-  const findCell = (clicked) => {
+  const findCell = (find) => {
     // Find cell with the corresponding number
     for (let i = 0; i < board.length; i++) {
       for (let j = 0; j < board[i].length; j++) {
-        if (clicked === board[i][j].num) {
+        if (find === board[i][j].num) {
           return [i, j];
         }
       }
@@ -206,7 +206,7 @@ const GameBoard = (() => {
   };
 
   const findClaimed = (i, j) => {
-    // Find all cells claimed by the same letter
+    // Find all adjacent cells claimed by the same letter
     const claimed = [];
     for (let dx = i > 0 ? -1 : 0; dx <= (i < board.length - 1 ? 1 : 0); ++dx) {
       for (
@@ -218,11 +218,7 @@ const GameBoard = (() => {
           (dx !== 0 || dy !== 0) &&
           board[i + dx][j + dy].claimed === board[i][j].claimed
         ) {
-          if (board[i + dx][j + dy].num > board[i][j].num) {
-            // Add currently clicked to claimed in the proper order
-            claimed.push(board[i][j]);
-          }
-          claimed.push(board[i + dx][j + dy]);
+          claimed.push([i + dx, j + dy]);
         }
       }
     }
@@ -230,10 +226,40 @@ const GameBoard = (() => {
     return claimed;
   };
 
+  const isInBetween = (i, j, claimed) => {
+    // Check if clicked element is in between two elements that it are also claimed
+    let k = null;
+    let l = null;
+    let m = null;
+    let n = null;
+    for (let index = 0; index < claimed.length / 2 + 1; index++) {
+      for (let second = index + 1; second < claimed.length; second++) {
+        [k, l] = claimed[index];
+        [m, n] = claimed[second];
+        const diff1 = [i - k, j - l];
+        const diff2 = [i - m, j - n];
+
+        // If the deviation of both elements from i and j are both 0, the clicked element is
+        // in the middle
+        if (diff1[0] + diff2[0] === 0 && diff1[1] + diff2[1] === 0) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  };
+
   const checkWin = (clicked) => {
     const [i, j] = findCell(clicked);
     const claimed = findClaimed(i, j);
-    console.log(claimed);
+    let k = null;
+    let l = null;
+    let won = false;
+    won = isInBetween(i, j, claimed);
+
+    if (!won) {
+    }
   };
 
   return { initializeBoard, fill, checkWin };
@@ -295,6 +321,7 @@ const game = (() => {
 
           if (count > 4) {
             gameWon = GameBoard.checkWin(cellNum);
+            console.log(gameWon);
             // if gameWon
             // currentPlayer.score += 1;
             // displayController.addPoint(currentPlayer); -- player needs to store scoreBlock
