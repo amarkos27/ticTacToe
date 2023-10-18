@@ -264,6 +264,8 @@ const GameBoard = (() => {
       [k, l] = claimed[index];
       diffI = k - i;
       diffJ = l - j;
+
+      // Check if going out of bounds before accessing element
       if (k + diffI > 2 || k + diffI < 0 || l + diffJ > 2 || l + diffJ < 0) {
         continue;
       }
