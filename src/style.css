@@ -187,7 +187,7 @@ p {
     text-transform: uppercase;
     letter-spacing: 0.5rem;
     line-height: 2rem;
-    transition: 0.35s;
+    transition: 0.25s;
     z-index: 1;
 }
 
@@ -207,12 +207,12 @@ p {
     background: var(--color);
     z-index: -1;
     transform: scale(0);
-    transition: 0.35s;
+    transition: 0.25s;
 }
 
 .button:hover::before {
     transform: scale(1);
-    transition-delay: 0.35s;
+    transition-delay: 0.25s;
     box-shadow: 0 0 10px var(--color),
         0 0 30px var(--color),
         0 0 60px var(--color);
@@ -228,7 +228,7 @@ p {
         0 0 30px var(--color),
         0 0 50px var(--color),
         0 0 100px var(--color);
-    transition: 0.35s;
+    transition: 0.25s;
     transition-delay: 0.17s;
 }
 

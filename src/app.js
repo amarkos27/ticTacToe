@@ -153,6 +153,17 @@ const displayController = (() => {
     return 0;
   };
 
+  const updateScore = (player) => {
+    let scoreBlock = null;
+    if (player.letter === 'X') {
+      scoreBlock = document.querySelector('.upper .score:first-of-type');
+    } else {
+      scoreBlock = document.querySelector('.upper .score:last-of-type');
+    }
+
+    scoreBlock.textContent = player.score;
+  };
+
   return {
     selectButton,
     areBothPicked,
@@ -161,6 +172,7 @@ const displayController = (() => {
     home,
     setPlayers,
     fill,
+    updateScore,
   };
 })();
 
@@ -227,7 +239,7 @@ const GameBoard = (() => {
   };
 
   const isInBetween = (i, j, claimed) => {
-    // Check if clicked element is in between two elements that it are also claimed
+    // Check if clicked element is in between two elements that are also claimed
     let k = null;
     let l = null;
     let m = null;
@@ -242,7 +254,7 @@ const GameBoard = (() => {
         // If the deviation of both elements from i and j are both 0, the clicked element is
         // in the middle
         if (diff1[0] + diff2[0] === 0 && diff1[1] + diff2[1] === 0) {
-          return true;
+          return [board[i][j].num, board[k][l].num, board[m][n].num];
         }
       }
     }
@@ -260,17 +272,23 @@ const GameBoard = (() => {
     let won = false;
     won = isInBetween(i, j, claimed);
 
-    for (let index = 0; index < claimed.length; index++) {
-      [k, l] = claimed[index];
-      diffI = k - i;
-      diffJ = l - j;
+    if (!won) {
+      for (let index = 0; index < claimed.length; index++) {
+        [k, l] = claimed[index];
+        diffI = k - i;
+        diffJ = l - j;
 
-      // Check if going out of bounds before accessing element
-      if (k + diffI > 2 || k + diffI < 0 || l + diffJ > 2 || l + diffJ < 0) {
-        continue;
-      }
-      if (board[i][j].claimed === board[k + diffI][l + diffJ].claimed) {
-        won = true;
+        // Check if going out of bounds before accessing element
+        if (k + diffI > 2 || k + diffI < 0 || l + diffJ > 2 || l + diffJ < 0) {
+          continue;
+        }
+        if (board[i][j].claimed === board[k + diffI][l + diffJ].claimed) {
+          return [
+            board[i][j].num,
+            board[k][l].num,
+            board[k + diffI][l + diffJ].num,
+          ];
+        }
       }
     }
 
@@ -336,7 +354,11 @@ const game = (() => {
 
           if (count > 4) {
             gameWon = GameBoard.checkWin(cellNum);
-            console.log(gameWon);
+
+            if (gameWon) {
+              currentPlayer.score += 1;
+              displayController.updateScore(currentPlayer);
+            }
             // if gameWon
             // currentPlayer.score += 1;
             // displayController.addPoint(currentPlayer); -- player needs to store scoreBlock
