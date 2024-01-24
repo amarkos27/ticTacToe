@@ -123,14 +123,8 @@ const displayController = (() => {
 
   const setPlayers = (type1, type2) => {
     const players = document.querySelectorAll('.player');
-
-    if (type1 === type2) {
-      players[0].textContent = `${type1} 1`;
-      players[1].textContent = `${type2} 2`;
-    } else {
-      players[0].textContent = type1;
-      players[1].textContent = type2;
-    }
+    players[0].textContent = type1;
+    players[1].textContent = type2;
   };
 
   const fill = (cell, letter) => {
@@ -153,15 +147,38 @@ const displayController = (() => {
     return 0;
   };
 
+  const addPoint = (index) => {
+    // Animation for adding the score when a player wins
+    const btns = document.querySelectorAll('.addScore');
+    const addBtn = btns[index];
+
+    addBtn.style.display = 'block';
+    setTimeout(() => {
+      addBtn.style.display = 'none';
+    }, 1500);
+  };
+
   const updateScore = (player) => {
-    let scoreBlock = null;
+    const scores = document.querySelectorAll('.number');
+    let index = null;
+
     if (player.letter === 'X') {
-      scoreBlock = document.querySelector('.upper .score:first-of-type');
+      index = 0;
     } else {
-      scoreBlock = document.querySelector('.upper .score:last-of-type');
+      index = 1;
     }
 
-    scoreBlock.textContent = player.score;
+    addPoint(index);
+    scores[index].textContent = player.score;
+  };
+
+  const highlightRow = (row, cells) => {
+    row.forEach((num) => cells[num - 1].classList.add('won'));
+  };
+
+  const win = (row, player, cells) => {
+    updateScore(player);
+    highlightRow(row, cells);
   };
 
   return {
@@ -172,7 +189,7 @@ const displayController = (() => {
     home,
     setPlayers,
     fill,
-    updateScore,
+    win,
   };
 })();
 
@@ -309,9 +326,19 @@ const game = (() => {
   let selections = null;
 
   const start = () => {
+    let type1 = null;
+    let type2 = null;
     displayController.startGame();
-    const player1 = Player(selections[0].textContent, 'X');
-    const player2 = Player(selections[1].textContent, 'O');
+
+    if (selections[0].textContent === selections[1].textContent) {
+      type1 = `${selections[0].textContent} 1`;
+      type2 = `${selections[1].textContent} 2`;
+    } else {
+      type1 = selections[0].textContent;
+      type2 = selections[1].textContent;
+    }
+    const player1 = Player(type1, 'X');
+    const player2 = Player(type2, 'O');
     displayController.setPlayers(player1.type, player2.type);
 
     return { player1, player2 };
@@ -357,7 +384,7 @@ const game = (() => {
 
             if (gameWon) {
               currentPlayer.score += 1;
-              displayController.updateScore(currentPlayer);
+              displayController.win(gameWon, currentPlayer, cells);
             }
             // if gameWon
             // currentPlayer.score += 1;
