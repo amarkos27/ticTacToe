@@ -5,7 +5,7 @@ const displayController = (() => {
   const startButton = document.querySelector('.vs a');
   const vs = document.querySelector('.text');
 
-  const reset = (buttons) => {
+  const homeReset = (buttons) => {
     buttons.forEach((button) => {
       button.classList.remove('selected');
       button.classList.add('hover');
@@ -117,7 +117,7 @@ const displayController = (() => {
   };
 
   const home = (buttons) => {
-    reset(buttons);
+    homeReset(buttons);
     pageSwitch(gamePage, startPage, 'grid');
   };
 
@@ -425,3 +425,12 @@ const game = (() => {
 })();
 
 game.init();
+
+//AGENDA
+/*
+- Change name of displayController.reset() so that it is only responsible for the start screen
+- Add a reset function that resets the gameBoard, data and interface, when the game has been won
+- Add functionality to tell the player whose turn it is (with an ellipses?)
+- Detect when a player has reached two wins and display the rematch/quit option modal
+- Add bot functionality
+*/
