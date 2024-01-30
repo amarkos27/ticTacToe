@@ -155,7 +155,7 @@ const displayController = (() => {
     addBtn.style.display = 'block';
     setTimeout(() => {
       addBtn.style.display = 'none';
-    }, 1500);
+    }, 2500);
   };
 
   const updateScore = (player) => {
@@ -316,7 +316,7 @@ const GameBoard = (() => {
 })();
 
 const Player = (type, letter) => {
-  let score = 0;
+  const score = 0;
 
   return { type, letter, score };
 };

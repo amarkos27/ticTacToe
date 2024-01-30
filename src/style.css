@@ -377,7 +377,7 @@ p {
     top: -5px;
     right: -15px;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.25);
-    animation: 1.5s addScore;
+    animation: 2.5s addScore;
 }
 
 .homeButton{ 
@@ -431,7 +431,7 @@ p {
 }
 
 .cell.won {
-    animation: win 1.5s;
+    animation: win 2.5s;
 }
 
 /** KEYFRAMES **/
@@ -544,15 +544,12 @@ p {
 @keyframes win {
     0% {
         background-color: var(--cell-background);
-        transform: scale(1);
     }
     30%, 70% {
         background-color: rgba(134, 255, 134, 0.729);
-        transform: scale(1.15);
     }
     100% {
         background-color: var(--cell-background);
-        transform: scale(1);
     }
 }
 
