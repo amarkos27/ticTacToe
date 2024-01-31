@@ -5,6 +5,17 @@ const displayController = (() => {
   const startButton = document.querySelector('.vs a');
   const vs = document.querySelector('.text');
 
+  const clearBoard = () => {
+    const cells = document.querySelectorAll('.cell');
+
+    cells.forEach((cell) => {
+      if (cell.children.length) {
+        cell.removeChild(cell.children[0]);
+        cell.classList = 'cell hover';
+      }
+    });
+  };
+
   const homeReset = (buttons) => {
     buttons.forEach((button) => {
       button.classList.remove('selected');
@@ -182,6 +193,7 @@ const displayController = (() => {
   };
 
   return {
+    clearBoard,
     selectButton,
     areBothPicked,
     startBtn,
@@ -232,6 +244,7 @@ const GameBoard = (() => {
   const fill = (clicked, letter) => {
     const [row, col] = findCell(clicked);
     board[row][col].claimed = letter;
+    console.log(board);
   };
 
   const findClaimed = (i, j) => {
@@ -312,7 +325,15 @@ const GameBoard = (() => {
     return won;
   };
 
-  return { initializeBoard, fill, checkWin };
+  const reset = () => {
+    for (let row = 0; row < board.length; row++) {
+      for (let col = 0; col < board[row].length; col++) {
+        board[row][col].claimed = '';
+      }
+    }
+  };
+
+  return { initializeBoard, fill, checkWin, reset };
 })();
 
 const Player = (type, letter) => {
@@ -361,11 +382,14 @@ const game = (() => {
   const active = (player1, player2) => {
     // Listener needs to be added this way so that the cell is always the element being interacted
     // with, not the div element added on click
-    const cells = Array.from(document.querySelectorAll('.cell'));
     let xTurn = true;
     let count = 0;
     let gameWon = false;
     let currentPlayer = null;
+
+    // Cells MUST be defined here so that new listeners are added to the newly cloned cells if the home button
+    // was pressed
+    const cells = Array.from(document.querySelectorAll('.cell'));
 
     cells.forEach((cell, i) => {
       // User inputs drive the program forward
@@ -386,13 +410,6 @@ const game = (() => {
               currentPlayer.score += 1;
               displayController.win(gameWon, currentPlayer, cells);
             }
-            // if gameWon
-            // currentPlayer.score += 1;
-            // displayController.addPoint(currentPlayer); -- player needs to store scoreBlock
-            // if currentPlayer.score === 2
-            // endGame()
-            // else
-            // GameBoard.reset()
           }
         }
       });
@@ -418,7 +435,11 @@ const game = (() => {
       active(player1, player2);
     });
 
-    homeButton.addEventListener('click', reset);
+    homeButton.addEventListener('click', () => {
+      displayController.clearBoard();
+      reset();
+      GameBoard.reset();
+    });
   };
 
   return { init };
@@ -426,7 +447,7 @@ const game = (() => {
 
 game.init();
 
-//AGENDA
+// AGENDA
 /*
 - Change name of displayController.reset() so that it is only responsible for the start screen
 - Add a reset function that resets the gameBoard, data and interface, when the game has been won
