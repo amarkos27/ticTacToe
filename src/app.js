@@ -5,12 +5,20 @@ const displayController = (() => {
   const startButton = document.querySelector('.vs a');
   const vs = document.querySelector('.text');
 
-  const clearBoard = () => {
+  const clearBoard = (gameWon = false) => {
     const cells = document.querySelectorAll('.cell');
 
+    // If the function is called when the game is won, play animation. Otherwise, simply clear the board
     cells.forEach((cell) => {
       if (cell.children.length) {
-        cell.removeChild(cell.children[0]);
+        if (gameWon) {
+          cell.children[0].classList.add('clear');
+          setTimeout(() => {
+            cell.removeChild(cell.children[0]);
+          }, 250);
+        } else {
+          cell.removeChild(cell.children[0]);
+        }
         cell.classList = 'cell hover';
       }
     });
@@ -190,6 +198,9 @@ const displayController = (() => {
   const win = (row, player, cells) => {
     updateScore(player);
     highlightRow(row, cells);
+    setTimeout(() => {
+      clearBoard(true);
+    }, 2500);
   };
 
   return {
@@ -200,6 +211,7 @@ const displayController = (() => {
     startGame,
     home,
     setPlayers,
+    updateScore,
     fill,
     win,
   };
@@ -244,7 +256,6 @@ const GameBoard = (() => {
   const fill = (clicked, letter) => {
     const [row, col] = findCell(clicked);
     board[row][col].claimed = letter;
-    console.log(board);
   };
 
   const findClaimed = (i, j) => {
@@ -362,6 +373,9 @@ const game = (() => {
     const player2 = Player(type2, 'O');
     displayController.setPlayers(player1.type, player2.type);
 
+    displayController.updateScore(player1);
+    displayController.updateScore(player2);
+
     return { player1, player2 };
   };
 
@@ -409,6 +423,8 @@ const game = (() => {
             if (gameWon) {
               currentPlayer.score += 1;
               displayController.win(gameWon, currentPlayer, cells);
+              GameBoard.reset();
+              xTurn = true;
             }
           }
         }

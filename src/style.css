@@ -426,6 +426,10 @@ p {
     animation: fadeIn 0.25s;
 }
 
+.cell .fill.clear {
+    animation: fadeOut 0.25s;
+}
+
 .cell.alreadyPicked {
     animation: wiggle .5s;
 }
