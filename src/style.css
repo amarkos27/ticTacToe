@@ -394,12 +394,17 @@ p {
 /** GAME BOARD **/
 
 .gameBoard {
+    position: relative;
     align-self: center;
     display: grid;
     width: var(--board-dimension);
     height: var(--board-dimension);
     grid: repeat(3, 1fr) / repeat(3, 1fr);
     gap: 8px;
+}
+
+.noClick {
+    pointer-events: none;
 }
 
 .cell {

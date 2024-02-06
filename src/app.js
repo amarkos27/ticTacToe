@@ -2,6 +2,7 @@ const displayController = (() => {
   const startPage = document.querySelector('.startPage');
   const loader = document.querySelector('.loader');
   const gamePage = document.querySelector('.gamePage');
+  const gameBoard = document.querySelector('.gameBoard');
   const startButton = document.querySelector('.vs a');
   const vs = document.querySelector('.text');
 
@@ -201,10 +202,13 @@ const displayController = (() => {
   };
 
   const win = (row, player, cells) => {
+    gameBoard.classList.add('noClick');
     updateScore(player);
     highlightRow(row, cells);
+
     setTimeout(() => {
       clearBoard(true);
+      gameBoard.classList.remove('noClick');
     }, 2500);
   };
 
@@ -395,7 +399,7 @@ const Game = (() => {
     board.parentNode.replaceChild(newBoard, board);
   };
 
-  const reset = () => {
+  const home = () => {
     selections = null;
     displayController.home(buttons);
     removeListeners();
@@ -431,7 +435,6 @@ const Game = (() => {
         if (success) {
           GameBoard.fill(cellNum, currentPlayer.letter);
           xTurn = !xTurn;
-          displayController.setTurn(nextPlayer);
           count++;
 
           if (count > 4) {
@@ -443,6 +446,8 @@ const Game = (() => {
               GameBoard.reset();
               xTurn = true;
             }
+          } else {
+            displayController.setTurn(nextPlayer);
           }
         }
       });
@@ -470,8 +475,8 @@ const Game = (() => {
 
     homeButton.addEventListener('click', () => {
       displayController.clearBoard();
-      reset();
       GameBoard.reset();
+      home();
     });
   };
 
