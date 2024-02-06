@@ -2,7 +2,6 @@ const displayController = (() => {
   const startPage = document.querySelector('.startPage');
   const loader = document.querySelector('.loader');
   const gamePage = document.querySelector('.gamePage');
-  const gameBoard = document.querySelector('.gameBoard');
   const startButton = document.querySelector('.vs a');
   const vs = document.querySelector('.text');
 
@@ -202,7 +201,9 @@ const displayController = (() => {
   };
 
   const win = (row, player, cells) => {
+    const gameBoard = document.querySelector('.gameBoard');
     gameBoard.classList.add('noClick');
+
     updateScore(player);
     highlightRow(row, cells);
 
