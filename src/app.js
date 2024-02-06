@@ -195,6 +195,11 @@ const displayController = (() => {
     row.forEach((num) => cells[num - 1].classList.add('won'));
   };
 
+  const setTurn = (player) => {
+    const turnDisplay = document.querySelector('.playerTurn');
+    turnDisplay.textContent = `${player.type}'s turn`;
+  };
+
   const win = (row, player, cells) => {
     updateScore(player);
     highlightRow(row, cells);
@@ -213,6 +218,7 @@ const displayController = (() => {
     setPlayers,
     updateScore,
     fill,
+    setTurn,
     win,
   };
 })();
@@ -353,7 +359,7 @@ const Player = (type, letter) => {
   return { type, letter, score };
 };
 
-const game = (() => {
+const Game = (() => {
   const buttons = Array.from(document.querySelectorAll('.playerChoice'));
   let selections = null;
 
@@ -372,7 +378,9 @@ const game = (() => {
     const player1 = Player(type1, 'X');
     const player2 = Player(type2, 'O');
     displayController.setPlayers(player1.type, player2.type);
+    displayController.setTurn(player1);
 
+    // Ensures that score is always 0 - 0 at the beginning
     displayController.updateScore(player1);
     displayController.updateScore(player2);
 
@@ -400,6 +408,7 @@ const game = (() => {
     let count = 0;
     let gameWon = false;
     let currentPlayer = null;
+    let nextPlayer = null;
 
     // Cells MUST be defined here so that new listeners are added to the newly cloned cells if the home button
     // was pressed
@@ -409,12 +418,20 @@ const game = (() => {
       // User inputs drive the program forward
       const cellNum = i + 1;
       cell.addEventListener('click', () => {
-        currentPlayer = xTurn ? player1 : player2;
+        if (xTurn) {
+          currentPlayer = player1;
+          nextPlayer = player2;
+        } else {
+          currentPlayer = player2;
+          nextPlayer = player1;
+        }
+
         const success = displayController.fill(cell, currentPlayer.letter);
 
         if (success) {
           GameBoard.fill(cellNum, currentPlayer.letter);
           xTurn = !xTurn;
+          displayController.setTurn(nextPlayer);
           count++;
 
           if (count > 4) {
@@ -461,12 +478,10 @@ const game = (() => {
   return { init };
 })();
 
-game.init();
+Game.init();
 
 // AGENDA
 /*
-- Change name of displayController.reset() so that it is only responsible for the start screen
-- Add a reset function that resets the gameBoard, data and interface, when the game has been won
 - Add functionality to tell the player whose turn it is (with an ellipses?)
 - Detect when a player has reached two wins and display the rematch/quit option modal
 - Add bot functionality
