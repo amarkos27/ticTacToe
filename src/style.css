@@ -318,16 +318,16 @@ p {
 .gamePage {
     display: none;
     flex-direction: column;
+    align-items: center;
     width: 100vw;
     height: 100vh;
     padding: 25px 0;
-    gap: 60px;
+    gap: 30px;
 }
 
 /** SCORE AREA **/
 
 .upper {
-    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -360,12 +360,6 @@ p {
     align-items: center;
 }
 
-.playerTurn {
-    position: absolute;
-    font-size: clamp(0.7em, 1vw, 1em);
-    top: 50%;
-}
-
 .addScore {
     display: none;
     position: absolute;
@@ -381,7 +375,7 @@ p {
 }
 
 .homeButton{ 
-    position: absolute;
+    position: fixed;
     right: 20px;
     width: 50px;
     cursor: pointer;
@@ -389,6 +383,11 @@ p {
 
 .homeButton:active {
     transform: scale(0.95);
+}
+
+.playerTurn {
+    font-size: clamp(0.7em, 1vw, 1em);
+    height: 15px;
 }
 
 /** GAME BOARD **/

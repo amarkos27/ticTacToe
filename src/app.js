@@ -8,7 +8,7 @@ const displayController = (() => {
   const clearBoard = (gameWon = false) => {
     const cells = document.querySelectorAll('.cell');
 
-    // If the function is called when the game is won, play animation. Otherwise, simply clear the board
+    // If the function is called when the game is won, play clear animation. Otherwise, simply clear the board
     cells.forEach((cell) => {
       if (cell.children.length) {
         if (gameWon) {
@@ -195,9 +195,19 @@ const displayController = (() => {
     row.forEach((num) => cells[num - 1].classList.add('won'));
   };
 
-  const setTurn = (player) => {
+  const setTurn = (player, won = false) => {
     const turnDisplay = document.querySelector('.playerTurn');
-    turnDisplay.textContent = `${player.type}'s turn`;
+    if (won) {
+      turnDisplay.textContent = ' ';
+
+      // SetTimeout set to 2.7s to account for the win animations
+      // before the turn is displayed again
+      setTimeout(() => {
+        turnDisplay.textContent = `${player.type}'s turn`;
+      }, 2700);
+    } else {
+      turnDisplay.textContent = `${player.type}'s turn`;
+    }
   };
 
   const win = (row, player, cells) => {
@@ -444,7 +454,9 @@ const Game = (() => {
             if (gameWon) {
               currentPlayer.score += 1;
               displayController.win(gameWon, currentPlayer, cells);
+              displayController.setTurn(player1, true);
               GameBoard.reset();
+              count = 0;
               xTurn = true;
             }
           } else {
