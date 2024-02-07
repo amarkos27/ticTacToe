@@ -425,6 +425,14 @@ p {
     transform: scale(1);
 }
 
+.cell.won {
+    animation: win 2.5s;
+}
+
+.cell.draw {
+    animation: draw 2.5s;
+}
+
 .cell .fill {
     font-size: clamp(30px, 3.75vw, 70px);
     animation: fadeIn 0.25s;
@@ -436,10 +444,6 @@ p {
 
 .cell.alreadyPicked {
     animation: wiggle .5s;
-}
-
-.cell.won {
-    animation: win 2.5s;
 }
 
 /** KEYFRAMES **/
@@ -551,15 +555,29 @@ p {
 
 @keyframes win {
     0% {
-        background-color: var(--cell-background);
+        box-shadow: none;
     }
     30%, 70% {
-        background-color: rgba(134, 255, 134, 0.729);
+        box-shadow: inset 0 0 10vw rgba(134, 255, 134, 0.729);
     }
     100% {
-        background-color: var(--cell-background);
+        box-shadow: none;
     }
 }
+
+@keyframes draw {
+    0% {
+        box-shadow: none;
+    }
+    30%, 70% {
+        box-shadow: inset 0 0 10vw rgb(243 231 7);
+    }
+    100% {
+        box-shadow: none;
+    }
+}
+
+rgba(134, 255, 134, 0.729);
 
 /** MEDIA QUERY **/
 @media only screen and (max-width: 850px) {

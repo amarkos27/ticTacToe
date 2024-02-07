@@ -2,6 +2,7 @@ const displayController = (() => {
   const startPage = document.querySelector('.startPage');
   const loader = document.querySelector('.loader');
   const gamePage = document.querySelector('.gamePage');
+  const gameBoard = document.querySelector('.gameBoard');
   const startButton = document.querySelector('.vs a');
   const vs = document.querySelector('.text');
 
@@ -211,11 +212,21 @@ const displayController = (() => {
   };
 
   const win = (row, player, cells) => {
-    const gameBoard = document.querySelector('.gameBoard');
     gameBoard.classList.add('noClick');
 
     updateScore(player);
     highlightRow(row, cells);
+
+    setTimeout(() => {
+      clearBoard(true);
+      gameBoard.classList.remove('noClick');
+    }, 2500);
+  };
+
+  const draw = (cells) => {
+    gameBoard.classList.add('noClick');
+
+    cells.forEach((cell) => cell.classList.add('draw'));
 
     setTimeout(() => {
       clearBoard(true);
@@ -235,6 +246,7 @@ const displayController = (() => {
     fill,
     setTurn,
     win,
+    draw,
   };
 })();
 
@@ -282,6 +294,9 @@ const GameBoard = (() => {
   const findClaimed = (i, j) => {
     // Find all adjacent cells claimed by the same letter
     const claimed = [];
+
+    // This for loop combines all viable combinations of i, i+1, and i-1 in order to find adjacent cells
+    // Then the cell is checked if it is claimed by the same letter and pushed to the array if so
     for (let dx = i > 0 ? -1 : 0; dx <= (i < board.length - 1 ? 1 : 0); ++dx) {
       for (
         let dy = j > 0 ? -1 : 0;
@@ -383,6 +398,7 @@ const Game = (() => {
     let type2 = null;
     displayController.startGame();
 
+    // If the player types are the same, number them
     if (selections[0].textContent === selections[1].textContent) {
       type1 = `${selections[0].textContent} 1`;
       type2 = `${selections[1].textContent} 2`;
@@ -412,8 +428,16 @@ const Game = (() => {
 
   const home = () => {
     selections = null;
+    displayController.clearBoard();
+    GameBoard.reset();
     displayController.home(buttons);
     removeListeners();
+  };
+
+  const draw = (cells, player1) => {
+    displayController.draw(cells);
+    displayController.setTurn(player1, true);
+    GameBoard.reset();
   };
 
   const active = (player1, player2) => {
@@ -452,6 +476,13 @@ const Game = (() => {
           // Game win only needs to be checked after 4 turns
           if (count > 4) {
             gameWon = GameBoard.checkWin(cellNum);
+
+            if (count === 9 && !gameWon) {
+              draw(cells, player1);
+              count = 0;
+              xTurn = true;
+              return;
+            }
           }
 
           if (gameWon) {
@@ -490,11 +521,7 @@ const Game = (() => {
       active(player1, player2);
     });
 
-    homeButton.addEventListener('click', () => {
-      displayController.clearBoard();
-      GameBoard.reset();
-      home();
-    });
+    homeButton.addEventListener('click', home);
   };
 
   return { init };
