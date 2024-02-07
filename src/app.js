@@ -445,20 +445,24 @@ const Game = (() => {
 
         if (success) {
           GameBoard.fill(cellNum, currentPlayer.letter);
+          displayController.setTurn(nextPlayer);
           xTurn = !xTurn;
           count++;
 
+          // Game win only needs to be checked after 4 turns
           if (count > 4) {
             gameWon = GameBoard.checkWin(cellNum);
+          }
 
-            if (gameWon) {
-              currentPlayer.score += 1;
-              displayController.win(gameWon, currentPlayer, cells);
-              displayController.setTurn(player1, true);
-              GameBoard.reset();
-              count = 0;
-              xTurn = true;
-            }
+          if (gameWon) {
+            currentPlayer.score += 1;
+            displayController.win(gameWon, currentPlayer, cells);
+            displayController.setTurn(player1, true);
+            GameBoard.reset();
+
+            count = 0;
+            xTurn = true;
+            gameWon = false;
           } else {
             displayController.setTurn(nextPlayer);
           }
@@ -500,7 +504,6 @@ Game.init();
 
 // AGENDA
 /*
-- Add functionality to tell the player whose turn it is (with an ellipses?)
 - Detect when a player has reached two wins and display the rematch/quit option modal
 - Add bot functionality
 */
