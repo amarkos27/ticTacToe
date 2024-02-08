@@ -234,6 +234,18 @@ const displayController = (() => {
     }, 2500);
   };
 
+  const openModal = (player) => {
+    const modalOverlay = document.querySelector('.modal-overlay');
+    const modal = document.querySelector('.closeModal');
+    const winner = document.querySelector('.gameOver');
+
+    winner.textContent = `${player} wins!`;
+
+    modalOverlay.classList.add('show');
+    modal.classList.remove('closeModal');
+    modal.classList.add('modal');
+  };
+
   return {
     clearBoard,
     selectButton,
@@ -247,6 +259,7 @@ const displayController = (() => {
     setTurn,
     win,
     draw,
+    openModal,
   };
 })();
 
@@ -440,17 +453,22 @@ const Game = (() => {
     GameBoard.reset();
   };
 
+  const modal = (player) => {
+    const rematch = document.querySelector('.rematch');
+    const exit = document.querySelector('.exit');
+
+    displayController.openModal(player);
+  };
+
   const active = (player1, player2) => {
-    // Listener needs to be added this way so that the cell is always the element being interacted
-    // with, not the div element added on click
     let xTurn = true;
     let count = 0;
     let gameWon = false;
     let currentPlayer = null;
     let nextPlayer = null;
 
-    // Cells MUST be defined here so that new listeners are added to the newly cloned cells if the home button
-    // was pressed
+    // Cells MUST be defined here so that new listeners are added to the newly cloned cells if the home
+    // button was pressed
     const cells = Array.from(document.querySelectorAll('.cell'));
 
     cells.forEach((cell, i) => {
@@ -490,6 +508,13 @@ const Game = (() => {
             displayController.win(gameWon, currentPlayer, cells);
             displayController.setTurn(player1, true);
             GameBoard.reset();
+
+            if (currentPlayer.score === 3) {
+              // Wait 2.5s for win animations to finish before opening
+              setTimeout(() => {
+                modal(currentPlayer.type);
+              }, 2700);
+            }
 
             count = 0;
             xTurn = true;
