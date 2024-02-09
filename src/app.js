@@ -234,17 +234,21 @@ const displayController = (() => {
     }, 2500);
   };
 
-  const openModal = (player) => {
+  const modalController = (() => {
     const modalOverlay = document.querySelector('.modal-overlay');
     const modal = document.querySelector('.closeModal');
-    const winner = document.querySelector('.gameOver');
 
-    winner.textContent = `${player} wins!`;
+    const openModal = (player) => {
+      const winner = document.querySelector('.gameOver');
 
-    modalOverlay.classList.add('show');
-    modal.classList.remove('closeModal');
-    modal.classList.add('modal');
-  };
+      winner.textContent = `${player} wins!`;
+      modalOverlay.classList.add('show');
+      modal.classList.remove('closeModal');
+      modal.classList.add('modal');
+    };
+
+    return { openModal };
+  })();
 
   return {
     clearBoard,
@@ -259,7 +263,7 @@ const displayController = (() => {
     setTurn,
     win,
     draw,
-    openModal,
+    modalController,
   };
 })();
 
@@ -453,11 +457,24 @@ const Game = (() => {
     GameBoard.reset();
   };
 
-  const modal = (player) => {
+  const restart = (player1, player2) => {
+    player1.score = 0;
+    player2.score = 0;
+
+    displayController.updateScore(player1);
+    displayController.updateScore(player2);
+  };
+
+  const modal = (winner, player1, player2) => {
     const rematch = document.querySelector('.rematch');
     const exit = document.querySelector('.exit');
 
-    displayController.openModal(player);
+    rematch.addEventListener('click', () => {
+      restart(player1, player2);
+      displayController.closeModal();
+    });
+
+    displayController.modalController.openModal(winner);
   };
 
   const active = (player1, player2) => {
@@ -512,7 +529,7 @@ const Game = (() => {
             if (currentPlayer.score === 3) {
               // Wait 2.5s for win animations to finish before opening
               setTimeout(() => {
-                modal(currentPlayer.type);
+                modal(currentPlayer.type, player1, player2);
               }, 2700);
             }
 
