@@ -2,7 +2,6 @@ const displayController = (() => {
   const startPage = document.querySelector('.startPage');
   const loader = document.querySelector('.loader');
   const gamePage = document.querySelector('.gamePage');
-  const gameBoard = document.querySelector('.gameBoard');
   const startButton = document.querySelector('.vs a');
   const vs = document.querySelector('.text');
 
@@ -178,7 +177,7 @@ const displayController = (() => {
     }, 2500);
   };
 
-  const updateScore = (player) => {
+  const updateScore = (player, roundWin = false) => {
     const scores = document.querySelectorAll('.number');
     let index = null;
 
@@ -188,7 +187,9 @@ const displayController = (() => {
       index = 1;
     }
 
-    addPoint(index);
+    if (roundWin) {
+      addPoint(index);
+    }
     scores[index].textContent = player.score;
   };
 
@@ -211,10 +212,10 @@ const displayController = (() => {
     }
   };
 
-  const win = (row, player, cells) => {
+  const win = (row, player, gameBoard, cells) => {
     gameBoard.classList.add('noClick');
 
-    updateScore(player);
+    updateScore(player, true);
     highlightRow(row, cells);
 
     setTimeout(() => {
@@ -223,7 +224,7 @@ const displayController = (() => {
     }, 2500);
   };
 
-  const draw = (cells) => {
+  const draw = (gameBoard, cells) => {
     gameBoard.classList.add('noClick');
 
     cells.forEach((cell) => cell.classList.add('draw'));
@@ -247,7 +248,15 @@ const displayController = (() => {
       modal.classList.add('modal');
     };
 
-    return { openModal };
+    const closeModal = () => {
+      modal.classList.add('closeModal');
+      setTimeout(() => {
+        modal.classList.remove('modal');
+        modalOverlay.classList.remove('show');
+      }, 200);
+    };
+
+    return { openModal, closeModal };
   })();
 
   return {
@@ -451,8 +460,8 @@ const Game = (() => {
     removeListeners();
   };
 
-  const draw = (cells, player1) => {
-    displayController.draw(cells);
+  const draw = (gameBoard, cells, player1) => {
+    displayController.draw(gameBoard, cells);
     displayController.setTurn(player1, true);
     GameBoard.reset();
   };
@@ -471,7 +480,14 @@ const Game = (() => {
 
     rematch.addEventListener('click', () => {
       restart(player1, player2);
-      displayController.closeModal();
+      displayController.modalController.closeModal();
+    });
+
+    exit.addEventListener('click', () => {
+      displayController.modalController.closeModal();
+      setTimeout(() => {
+        home();
+      }, 210);
     });
 
     displayController.modalController.openModal(winner);
@@ -487,6 +503,7 @@ const Game = (() => {
     // Cells MUST be defined here so that new listeners are added to the newly cloned cells if the home
     // button was pressed
     const cells = Array.from(document.querySelectorAll('.cell'));
+    const gameBoard = document.querySelector('.gameBoard');
 
     cells.forEach((cell, i) => {
       // User inputs drive the program forward
@@ -513,7 +530,7 @@ const Game = (() => {
             gameWon = GameBoard.checkWin(cellNum);
 
             if (count === 9 && !gameWon) {
-              draw(cells, player1);
+              draw(gameBoard, cells, player1);
               count = 0;
               xTurn = true;
               return;
@@ -522,7 +539,7 @@ const Game = (() => {
 
           if (gameWon) {
             currentPlayer.score += 1;
-            displayController.win(gameWon, currentPlayer, cells);
+            displayController.win(gameWon, currentPlayer, gameBoard, cells);
             displayController.setTurn(player1, true);
             GameBoard.reset();
 
