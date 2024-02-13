@@ -415,6 +415,18 @@ const Player = (type, letter) => {
   return { type, letter, score };
 };
 
+const Bot = (botType, botLetter) => {
+  const { type, letter, score } = Player(botType, botLetter);
+
+  const move = (cells) => {
+    const availableCells = cells.filter((cell) => !cell.children.length);
+    const selectedIndex = Math.floor(Math.random() * availableCells.length);
+    availableCells[selectedIndex].click();
+  };
+
+  return { type, letter, score, move };
+};
+
 const Game = (() => {
   const buttons = Array.from(document.querySelectorAll('.playerChoice'));
   let selections = null;
@@ -432,8 +444,13 @@ const Game = (() => {
       type1 = selections[0].textContent;
       type2 = selections[1].textContent;
     }
-    const player1 = Player(type1, 'X');
-    const player2 = Player(type2, 'O');
+
+    const player1 = type1.includes('Bot')
+      ? Bot(type1, 'X')
+      : Player(type1, 'X');
+    const player2 = type2.includes('Bot')
+      ? Bot(type2, 'O')
+      : Player(type2, 'O');
     displayController.setPlayers(player1.type, player2.type);
     displayController.setTurn(player1);
 
@@ -497,8 +514,8 @@ const Game = (() => {
     let xTurn = true;
     let count = 0;
     let gameWon = false;
-    let currentPlayer = null;
-    let nextPlayer = null;
+    let currentPlayer = player1;
+    let nextPlayer = player2;
 
     // Cells MUST be defined here so that new listeners are added to the newly cloned cells if the home
     // button was pressed
@@ -544,7 +561,7 @@ const Game = (() => {
             GameBoard.reset();
 
             if (currentPlayer.score === 3) {
-              // Wait 2.5s for win animations to finish before opening
+              // Wait 2.7s for win animations to finish before opening
               setTimeout(() => {
                 modal(currentPlayer.type, player1, player2);
               }, 2700);
@@ -590,6 +607,5 @@ Game.init();
 
 // AGENDA
 /*
-- Detect when a player has reached two wins and display the rematch/quit option modal
 - Add bot functionality
 */
