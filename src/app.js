@@ -495,17 +495,25 @@ const Game = (() => {
     const rematch = document.querySelector('.rematch');
     const exit = document.querySelector('.exit');
 
-    rematch.addEventListener('click', () => {
-      restart(player1, player2);
-      displayController.modalController.closeModal();
-    });
+    rematch.addEventListener(
+      'click',
+      () => {
+        restart(player1, player2);
+        displayController.modalController.closeModal();
+      },
+      { once: true }
+    );
 
-    exit.addEventListener('click', () => {
-      displayController.modalController.closeModal();
-      setTimeout(() => {
-        home();
-      }, 210);
-    });
+    exit.addEventListener(
+      'click',
+      () => {
+        displayController.modalController.closeModal();
+        setTimeout(() => {
+          home();
+        }, 210);
+      },
+      { once: true }
+    );
 
     displayController.modalController.openModal(winner);
   };
