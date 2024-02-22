@@ -8,7 +8,8 @@ const displayController = (() => {
   const clearBoard = (gameWon = false) => {
     const cells = document.querySelectorAll('.cell');
 
-    // If the function is called when the game is won, play clear animation. Otherwise, simply clear the board
+    // If the function is called when the game is won, play clear animation. Otherwise, simply
+    // clear the board
     cells.forEach((cell) => {
       if (cell.children.length) {
         if (gameWon) {
@@ -418,10 +419,15 @@ const Player = (type, letter) => {
 const Bot = (botType, botLetter) => {
   const { type, letter, score } = Player(botType, botLetter);
 
-  const move = (cells) => {
+  const move = (cells, gameBoard) => {
     const availableCells = cells.filter((cell) => !cell.children.length);
     const selectedIndex = Math.floor(Math.random() * availableCells.length);
-    availableCells[selectedIndex].click();
+
+    gameBoard.classList.add('noClick');
+    setTimeout(() => {
+      availableCells[selectedIndex].click();
+      gameBoard.classList.remove('noClick');
+    }, 1000);
   };
 
   return { type, letter, score, move };
@@ -454,10 +460,6 @@ const Game = (() => {
     displayController.setPlayers(player1.type, player2.type);
     displayController.setTurn(player1);
 
-    // Ensures that score is always 0 - 0 at the beginning
-    displayController.updateScore(player1);
-    displayController.updateScore(player2);
-
     return { player1, player2 };
   };
 
@@ -483,7 +485,7 @@ const Game = (() => {
     GameBoard.reset();
   };
 
-  const restart = (player1, player2) => {
+  const newGame = (player1, player2) => {
     player1.score = 0;
     player2.score = 0;
 
@@ -498,7 +500,7 @@ const Game = (() => {
     rematch.addEventListener(
       'click',
       () => {
-        restart(player1, player2);
+        newGame(player1, player2);
         displayController.modalController.closeModal();
       },
       { once: true }
@@ -530,6 +532,8 @@ const Game = (() => {
     const cells = Array.from(document.querySelectorAll('.cell'));
     const gameBoard = document.querySelector('.gameBoard');
 
+    newGame(player1, player2);
+
     cells.forEach((cell, i) => {
       // User inputs drive the program forward
       const cellNum = i + 1;
@@ -558,7 +562,6 @@ const Game = (() => {
               draw(gameBoard, cells, player1);
               count = 0;
               xTurn = true;
-              return;
             }
           }
 
