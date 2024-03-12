@@ -485,22 +485,31 @@ const Game = (() => {
     GameBoard.reset();
   };
 
-  const newGame = (player1, player2) => {
+  const newGame = (player1, player2, cells, gameBoard) => {
     player1.score = 0;
     player2.score = 0;
 
     displayController.updateScore(player1);
     displayController.updateScore(player2);
+
+    // Have bot make a move after 3.1s only on the first move so that the loading animation
+    // can finish
+    if (player1.type.includes('Bot')) {
+      setTimeout(() => {
+        player1.move(cells, gameBoard);
+      }, 3100);
+    }
   };
 
-  const modal = (winner, player1, player2) => {
+  const modal = (winner, player1, player2, cells, gameBoard) => {
     const rematch = document.querySelector('.rematch');
     const exit = document.querySelector('.exit');
+    const playAgain = false;
 
     rematch.addEventListener(
       'click',
       () => {
-        newGame(player1, player2);
+        newGame(player1, player2, cells, gameBoard);
         displayController.modalController.closeModal();
       },
       { once: true }
@@ -532,11 +541,12 @@ const Game = (() => {
     const cells = Array.from(document.querySelectorAll('.cell'));
     const gameBoard = document.querySelector('.gameBoard');
 
-    newGame(player1, player2);
+    newGame(player1, player2, cells, gameBoard);
 
     cells.forEach((cell, i) => {
       // User inputs drive the program forward
       const cellNum = i + 1;
+
       cell.addEventListener('click', () => {
         if (xTurn) {
           currentPlayer = player1;
@@ -558,10 +568,19 @@ const Game = (() => {
           if (count > 4) {
             gameWon = GameBoard.checkWin(cellNum);
 
+            // If game is a draw
             if (count === 9 && !gameWon) {
               draw(gameBoard, cells, player1);
               count = 0;
               xTurn = true;
+
+              if (player1.type.includes('Bot')) {
+                // Wait for board to be cleared before going
+                setTimeout(() => {
+                  player1.move(cells, gameBoard);
+                }, 3100);
+                return;
+              }
             }
           }
 
@@ -574,15 +593,28 @@ const Game = (() => {
             if (currentPlayer.score === 3) {
               // Wait 2.7s for win animations to finish before opening
               setTimeout(() => {
-                modal(currentPlayer.type, player1, player2);
+                modal(currentPlayer.type, player1, player2, cells, gameBoard);
               }, 2700);
+
+              // Return statement prevents bots from continuing game after it is over
+              return;
             }
 
             count = 0;
             xTurn = true;
             gameWon = false;
+
+            if (player1.type.includes('Bot')) {
+              setTimeout(() => {
+                player1.move(cells, gameBoard);
+              }, 3100);
+            }
           } else {
             displayController.setTurn(nextPlayer);
+
+            if (nextPlayer.type.includes('Bot')) {
+              nextPlayer.move(cells, gameBoard);
+            }
           }
         }
       });
