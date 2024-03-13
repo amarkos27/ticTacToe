@@ -257,7 +257,18 @@ const displayController = (() => {
       }, 200);
     };
 
-    return { openModal, closeModal };
+    const removeListeners = () => {
+      const buttons = Array.from(
+        document.querySelector('.modal-buttons').children
+      );
+
+      buttons.forEach((button) => {
+        const newButton = button.cloneNode(true);
+        button.parentNode.replaceChild(newButton, button);
+      });
+    };
+
+    return { openModal, closeModal, removeListeners };
   })();
 
   return {
@@ -485,7 +496,7 @@ const Game = (() => {
     GameBoard.reset();
   };
 
-  const newGame = (player1, player2, cells, gameBoard) => {
+  const newGame = (player1, player2, cells, gameBoard, time) => {
     player1.score = 0;
     player2.score = 0;
 
@@ -497,20 +508,20 @@ const Game = (() => {
     if (player1.type.includes('Bot')) {
       setTimeout(() => {
         player1.move(cells, gameBoard);
-      }, 3100);
+      }, time);
     }
   };
 
   const modal = (winner, player1, player2, cells, gameBoard) => {
     const rematch = document.querySelector('.rematch');
     const exit = document.querySelector('.exit');
-    const playAgain = false;
 
     rematch.addEventListener(
       'click',
       () => {
-        newGame(player1, player2, cells, gameBoard);
+        newGame(player1, player2, cells, gameBoard, 220);
         displayController.modalController.closeModal();
+        displayController.modalController.removeListeners();
       },
       { once: true }
     );
@@ -521,6 +532,7 @@ const Game = (() => {
         displayController.modalController.closeModal();
         setTimeout(() => {
           home();
+          displayController.modalController.removeListeners();
         }, 210);
       },
       { once: true }
@@ -541,7 +553,7 @@ const Game = (() => {
     const cells = Array.from(document.querySelectorAll('.cell'));
     const gameBoard = document.querySelector('.gameBoard');
 
-    newGame(player1, player2, cells, gameBoard);
+    newGame(player1, player2, cells, gameBoard, 3100);
 
     cells.forEach((cell, i) => {
       // User inputs drive the program forward
@@ -590,6 +602,10 @@ const Game = (() => {
             displayController.setTurn(player1, true);
             GameBoard.reset();
 
+            count = 0;
+            xTurn = true;
+            gameWon = false;
+
             if (currentPlayer.score === 3) {
               // Wait 2.7s for win animations to finish before opening
               setTimeout(() => {
@@ -599,10 +615,6 @@ const Game = (() => {
               // Return statement prevents bots from continuing game after it is over
               return;
             }
-
-            count = 0;
-            xTurn = true;
-            gameWon = false;
 
             if (player1.type.includes('Bot')) {
               setTimeout(() => {
