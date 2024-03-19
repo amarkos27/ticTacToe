@@ -214,14 +214,11 @@ const displayController = (() => {
   };
 
   const win = (row, player, gameBoard, cells) => {
-    gameBoard.classList.add('noClick');
-
     updateScore(player, true);
     highlightRow(row, cells);
 
     setTimeout(() => {
       clearBoard(true);
-      gameBoard.classList.remove('noClick');
     }, 2500);
   };
 
@@ -430,13 +427,13 @@ const Player = (type, letter) => {
 const Bot = (botType, botLetter) => {
   const { type, letter, score } = Player(botType, botLetter);
 
-  const move = (cells) => {
+  const move = (cells, time) => {
     const availableCells = cells.filter((cell) => !cell.children.length);
     const selectedIndex = Math.floor(Math.random() * availableCells.length);
 
     setTimeout(() => {
       availableCells[selectedIndex].click();
-    }, 1000);
+    }, time);
   };
 
   return { type, letter, score, move };
@@ -536,22 +533,24 @@ const Game = (() => {
     let count = 0;
     let gameWon = false;
     let currentPlayer = player1;
+    let playerClicked = false;
 
     // Cells MUST be defined here so that new listeners are added to the newly cloned cells if the home
     // button was pressed
     const cells = Array.from(document.querySelectorAll('.cell'));
     const gameBoard = document.querySelector('.gameBoard');
 
-    const nextTurn = (clickEvent = false) => {
+    const nextTurn = (clickEvent, time) => {
       if (clickEvent) {
         xTurn = !xTurn;
         currentPlayer = xTurn ? player1 : player2;
         displayController.setTurn(currentPlayer);
         count++;
       }
+
       if (currentPlayer.type.includes('Bot')) {
         gameBoard.classList.remove('click');
-        currentPlayer.move(cells);
+        currentPlayer.move(cells, time);
       } else {
         gameBoard.classList.add('click');
       }
@@ -562,17 +561,36 @@ const Game = (() => {
 
       cell.addEventListener('click', () => {
         const success = displayController.fill(cell, currentPlayer.letter);
-        const playerClicked = true;
+        playerClicked = true;
 
         if (success) {
           GameBoard.fill(cellNum, currentPlayer.letter);
 
-          nextTurn(playerClicked);
+          if (count > 3) {
+            gameWon = GameBoard.checkWin(cellNum);
+          }
+
+          if (gameWon) {
+            currentPlayer.score += 1;
+            displayController.win(gameWon, currentPlayer, gameBoard, cells);
+
+            GameBoard.reset();
+            playerClicked = false;
+            gameWon = false;
+            count = 0;
+            xTurn = true;
+            currentPlayer = player1;
+            displayController.setTurn(currentPlayer, true);
+
+            nextTurn(playerClicked, 2700);
+          } else {
+            nextTurn(playerClicked, 1000);
+          }
         }
       });
     });
 
-    nextTurn();
+    nextTurn(playerClicked, 10000);
   };
 
   const init = () => {
