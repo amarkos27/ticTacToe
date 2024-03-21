@@ -427,13 +427,10 @@ const Player = (type, letter) => {
 const Bot = (botType, botLetter) => {
   const { type, letter, score } = Player(botType, botLetter);
 
-  const move = (cells, time) => {
+  const move = (cells) => {
     const availableCells = cells.filter((cell) => !cell.children.length);
     const selectedIndex = Math.floor(Math.random() * availableCells.length);
-
-    setTimeout(() => {
-      availableCells[selectedIndex].click();
-    }, time);
+    availableCells[selectedIndex].click();
   };
 
   return { type, letter, score, move };
@@ -554,7 +551,10 @@ const Game = (() => {
 
       if (currentPlayer.type.includes('Bot')) {
         gameBoard.classList.remove('click');
-        currentPlayer.move(cells, time);
+
+        setTimeout(() => {
+          currentPlayer.move(cells);
+        }, time);
       } else {
         gameBoard.classList.add('click');
       }
