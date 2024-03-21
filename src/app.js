@@ -213,7 +213,7 @@ const displayController = (() => {
     }
   };
 
-  const win = (row, player, gameBoard, cells) => {
+  const win = (row, player, cells) => {
     updateScore(player, true);
     highlightRow(row, cells);
 
@@ -506,7 +506,7 @@ const Game = (() => {
     rematch.addEventListener(
       'click',
       () => {
-        newGame(player1, player2, cells, 220);
+        newGame(player1, player2);
         displayController.modalController.closeModal();
         displayController.modalController.removeListeners();
       },
@@ -534,6 +534,10 @@ const Game = (() => {
     let gameWon = false;
     let currentPlayer = player1;
     let playerClicked = false;
+
+    const LOAD_ANIMATION_TIME = 3800;
+    const CLEAR_ANIMATION_TIME = 3100;
+    const NORMAL_BOT_WAIT = 1050;
 
     // Cells MUST be defined here so that new listeners are added to the newly cloned cells if the home
     // button was pressed
@@ -572,7 +576,7 @@ const Game = (() => {
 
           if (gameWon) {
             currentPlayer.score += 1;
-            displayController.win(gameWon, currentPlayer, gameBoard, cells);
+            displayController.win(gameWon, currentPlayer, cells);
 
             GameBoard.reset();
             playerClicked = false;
@@ -582,15 +586,15 @@ const Game = (() => {
             currentPlayer = player1;
             displayController.setTurn(currentPlayer, true);
 
-            nextTurn(playerClicked, 2700);
+            nextTurn(playerClicked, CLEAR_ANIMATION_TIME);
           } else {
-            nextTurn(playerClicked, 1000);
+            nextTurn(playerClicked, NORMAL_BOT_WAIT);
           }
         }
       });
     });
 
-    nextTurn(playerClicked, 10000);
+    nextTurn(playerClicked, LOAD_ANIMATION_TIME);
   };
 
   const init = () => {
