@@ -222,14 +222,11 @@ const displayController = (() => {
     }, 2500);
   };
 
-  const draw = (gameBoard, cells) => {
-    gameBoard.classList.add('noClick');
-
+  const draw = (cells) => {
     cells.forEach((cell) => cell.classList.add('draw'));
 
     setTimeout(() => {
       clearBoard(true);
-      gameBoard.classList.remove('noClick');
     }, 2500);
   };
 
@@ -415,7 +412,7 @@ const GameBoard = (() => {
     }
   };
 
-  return { initializeBoard, fill, checkWin, reset, board };
+  return { initializeBoard, fill, checkWin, reset };
 })();
 
 const Player = (type, letter) => {
@@ -439,6 +436,7 @@ const Bot = (botType, botLetter) => {
 const Game = (() => {
   const buttons = Array.from(document.querySelectorAll('.playerChoice'));
   let selections = null;
+  let homePressed = false;
 
   const start = () => {
     let type1 = null;
@@ -475,15 +473,15 @@ const Game = (() => {
   };
 
   const home = () => {
+    homePressed = true;
     selections = null;
     displayController.clearBoard();
-    GameBoard.reset();
     displayController.home(buttons);
     removeListeners();
   };
 
-  const draw = (gameBoard, cells, player1) => {
-    displayController.draw(gameBoard, cells);
+  const draw = (cells, player1) => {
+    displayController.draw(cells);
     displayController.setTurn(player1, true);
     GameBoard.reset();
   };
@@ -496,7 +494,7 @@ const Game = (() => {
     displayController.updateScore(player2);
   };
 
-  const modal = (winner, player1, player2, cells) => {
+  const modal = (winner, player1, player2) => {
     const rematch = document.querySelector('.rematch');
     const exit = document.querySelector('.exit');
 
@@ -531,6 +529,7 @@ const Game = (() => {
     let gameWon = false;
     let currentPlayer = player1;
     let playerClicked = false;
+    homePressed = false;
 
     const LOAD_ANIMATION_TIME = 3800;
     const CLEAR_ANIMATION_TIME = 3100;
@@ -541,14 +540,26 @@ const Game = (() => {
     const cells = Array.from(document.querySelectorAll('.cell'));
     const gameBoard = document.querySelector('.gameBoard');
 
-    const nextTurn = (clickEvent, time) => {
+    const resetRound = () => {
+      GameBoard.reset();
+      playerClicked = false;
+      gameWon = false;
+      count = 0;
+      xTurn = true;
+      currentPlayer = player1;
+      displayController.setTurn(currentPlayer, true);
+    };
+
+    const nextTurn = (clickEvent, time, reset = false) => {
+      if (homePressed) {
+        GameBoard.reset();
+        return;
+      }
       if (clickEvent) {
         xTurn = !xTurn;
         currentPlayer = xTurn ? player1 : player2;
         displayController.setTurn(currentPlayer);
-        count++;
       }
-
       if (currentPlayer.type.includes('Bot')) {
         gameBoard.classList.remove('click');
 
@@ -556,7 +567,11 @@ const Game = (() => {
           currentPlayer.move(cells);
         }, time);
       } else {
-        gameBoard.classList.add('click');
+        const waitClick = reset ? time : 0;
+
+        setTimeout(() => {
+          gameBoard.classList.add('click');
+        }, waitClick);
       }
     };
 
@@ -566,6 +581,7 @@ const Game = (() => {
       cell.addEventListener('click', () => {
         const success = displayController.fill(cell, currentPlayer.letter);
         playerClicked = true;
+        count++;
 
         if (success) {
           GameBoard.fill(cellNum, currentPlayer.letter);
@@ -577,16 +593,22 @@ const Game = (() => {
           if (gameWon) {
             currentPlayer.score += 1;
             displayController.win(gameWon, currentPlayer, cells);
+            gameBoard.classList.remove('click');
 
-            GameBoard.reset();
-            playerClicked = false;
-            gameWon = false;
-            count = 0;
-            xTurn = true;
-            currentPlayer = player1;
-            displayController.setTurn(currentPlayer, true);
+            if (currentPlayer.score === 3) {
+              setTimeout(() => {
+                modal(currentPlayer.type, player1, player2);
+              }, CLEAR_ANIMATION_TIME);
+            } else {
+              resetRound();
+              nextTurn(playerClicked, CLEAR_ANIMATION_TIME, true);
+            }
+          } else if (count === 9) {
+            gameBoard.classList.remove('click');
 
-            nextTurn(playerClicked, CLEAR_ANIMATION_TIME);
+            draw(cells, player1);
+            resetRound();
+            nextTurn(playerClicked, CLEAR_ANIMATION_TIME, true);
           } else {
             nextTurn(playerClicked, NORMAL_BOT_WAIT);
           }
@@ -594,6 +616,7 @@ const Game = (() => {
       });
     });
 
+    newGame(player1, player2);
     nextTurn(playerClicked, LOAD_ANIMATION_TIME);
   };
 
@@ -623,8 +646,3 @@ const Game = (() => {
 })();
 
 Game.init();
-
-// AGENDA
-/*
-- Add bot functionality
-*/
