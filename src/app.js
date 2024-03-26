@@ -5,7 +5,27 @@ const displayController = (() => {
   const startButton = document.querySelector('.vs a');
   const vs = document.querySelector('.text');
 
-  const reset = (buttons) => {
+  const clearBoard = (gameWon = false) => {
+    const cells = document.querySelectorAll('.cell');
+
+    // If the function is called when the game is won, play clear animation. Otherwise, simply
+    // clear the board
+    cells.forEach((cell) => {
+      if (cell.children.length) {
+        if (gameWon) {
+          cell.children[0].classList.add('clear');
+          setTimeout(() => {
+            cell.removeChild(cell.children[0]);
+          }, 250);
+        } else {
+          cell.removeChild(cell.children[0]);
+        }
+        cell.classList = 'cell hover';
+      }
+    });
+  };
+
+  const homeReset = (buttons) => {
     buttons.forEach((button) => {
       button.classList.remove('selected');
       button.classList.add('hover');
@@ -117,20 +137,14 @@ const displayController = (() => {
   };
 
   const home = (buttons) => {
-    reset(buttons);
+    homeReset(buttons);
     pageSwitch(gamePage, startPage, 'grid');
   };
 
   const setPlayers = (type1, type2) => {
     const players = document.querySelectorAll('.player');
-
-    if (type1 === type2) {
-      players[0].textContent = `${type1} 1`;
-      players[1].textContent = `${type2} 2`;
-    } else {
-      players[0].textContent = type1;
-      players[1].textContent = type2;
-    }
+    players[0].textContent = type1;
+    players[1].textContent = type2;
   };
 
   const fill = (cell, letter) => {
@@ -142,6 +156,7 @@ const displayController = (() => {
       choice.textContent = letter;
       cell.appendChild(choice);
       cell.classList.remove('hover');
+
       return 1;
     }
     cell.classList.add('alreadyPicked');
@@ -152,86 +167,301 @@ const displayController = (() => {
     return 0;
   };
 
+  const addPoint = (index) => {
+    // Animation for adding the score when a player wins
+    const btns = document.querySelectorAll('.addScore');
+    const addBtn = btns[index];
+
+    addBtn.style.display = 'block';
+    setTimeout(() => {
+      addBtn.style.display = 'none';
+    }, 2500);
+  };
+
+  const updateScore = (player, roundWin = false) => {
+    const scores = document.querySelectorAll('.number');
+    let index = null;
+
+    if (player.letter === 'X') {
+      index = 0;
+    } else {
+      index = 1;
+    }
+
+    if (roundWin) {
+      addPoint(index);
+    }
+    scores[index].textContent = player.score;
+  };
+
+  const highlightRow = (row, cells) => {
+    row.forEach((num) => cells[num - 1].classList.add('won'));
+  };
+
+  const setTurn = (player, won = false) => {
+    const turnDisplay = document.querySelector('.playerTurn');
+    if (won) {
+      turnDisplay.textContent = ' ';
+
+      // SetTimeout set to 2.7s to account for the win animations
+      // before the turn is displayed again
+      setTimeout(() => {
+        turnDisplay.textContent = `${player.type}'s turn`;
+      }, 2700);
+    } else {
+      turnDisplay.textContent = `${player.type}'s turn`;
+    }
+  };
+
+  const win = (row, player, cells) => {
+    updateScore(player, true);
+    highlightRow(row, cells);
+
+    setTimeout(() => {
+      clearBoard(true);
+    }, 2500);
+  };
+
+  const draw = (cells) => {
+    cells.forEach((cell) => cell.classList.add('draw'));
+
+    setTimeout(() => {
+      clearBoard(true);
+    }, 2500);
+  };
+
+  const modalController = (() => {
+    const modalOverlay = document.querySelector('.modal-overlay');
+    const modal = document.querySelector('.closeModal');
+
+    const openModal = (player) => {
+      const winner = document.querySelector('.gameOver');
+
+      winner.textContent = `${player} wins!`;
+      modalOverlay.classList.add('show');
+      modal.classList.remove('closeModal');
+      modal.classList.add('modal');
+    };
+
+    const closeModal = () => {
+      modal.classList.add('closeModal');
+      setTimeout(() => {
+        modal.classList.remove('modal');
+        modalOverlay.classList.remove('show');
+      }, 200);
+    };
+
+    const removeListeners = () => {
+      const buttons = Array.from(
+        document.querySelector('.modal-buttons').children
+      );
+
+      buttons.forEach((button) => {
+        const newButton = button.cloneNode(true);
+        button.parentNode.replaceChild(newButton, button);
+      });
+    };
+
+    return { openModal, closeModal, removeListeners };
+  })();
+
   return {
+    clearBoard,
     selectButton,
     areBothPicked,
     startBtn,
     startGame,
     home,
     setPlayers,
+    updateScore,
     fill,
+    setTurn,
+    win,
+    draw,
+    modalController,
   };
 })();
 
 const GameBoard = (() => {
   const board = [];
 
-  const gameWon = () => {};
-
   const initializeBoard = () => {
     // Fill cells with objects containing cell number and claimed property for which player
     // selected it
+    let cellNum = 1;
     for (let i = 0; i < 3; i++) {
       const row = [];
       board.push(row);
 
       for (let j = 0; j < 3; j++) {
-        const cellNum = 3 * i + (j + 1);
         const cell = {
           // Number the cells 1 - 9
           num: cellNum,
           claimed: null,
         };
         row.push(cell);
+        cellNum++;
       }
     }
   };
 
-  return { gameWon, initializeBoard };
+  const findCell = (find) => {
+    // Find cell with the corresponding number
+    for (let i = 0; i < board.length; i++) {
+      for (let j = 0; j < board[i].length; j++) {
+        if (find === board[i][j].num) {
+          return [i, j];
+        }
+      }
+    }
+
+    return -1;
+  };
+
+  const fill = (clicked, letter) => {
+    const [row, col] = findCell(clicked);
+    board[row][col].claimed = letter;
+  };
+
+  const findClaimed = (i, j) => {
+    // Find all adjacent cells claimed by the same letter
+    const claimed = [];
+
+    // This for loop combines all viable combinations of i, i+1, and i-1 in order to find adjacent cells
+    // Then the cell is checked if it is claimed by the same letter and pushed to the array if so
+    for (let dx = i > 0 ? -1 : 0; dx <= (i < board.length - 1 ? 1 : 0); ++dx) {
+      for (
+        let dy = j > 0 ? -1 : 0;
+        dy <= (j < board[0].length - 1 ? 1 : 0);
+        ++dy
+      ) {
+        if (
+          (dx !== 0 || dy !== 0) &&
+          board[i + dx][j + dy].claimed === board[i][j].claimed
+        ) {
+          claimed.push([i + dx, j + dy]);
+        }
+      }
+    }
+
+    return claimed;
+  };
+
+  const isInBetween = (i, j, claimed) => {
+    // Check if clicked element is in between two elements that are also claimed
+    let k = null;
+    let l = null;
+    let m = null;
+    let n = null;
+    for (let index = 0; index < claimed.length / 2 + 1; index++) {
+      for (let second = index + 1; second < claimed.length; second++) {
+        [k, l] = claimed[index];
+        [m, n] = claimed[second];
+        const diff1 = [i - k, j - l];
+        const diff2 = [i - m, j - n];
+
+        // If the deviation of both elements from i and j are both 0, the clicked element is
+        // in the middle
+        if (diff1[0] + diff2[0] === 0 && diff1[1] + diff2[1] === 0) {
+          return [board[i][j].num, board[k][l].num, board[m][n].num];
+        }
+      }
+    }
+
+    return false;
+  };
+
+  const checkWin = (clicked) => {
+    const [i, j] = findCell(clicked);
+    const claimed = findClaimed(i, j);
+    let k = null;
+    let l = null;
+    let diffI = null;
+    let diffJ = null;
+    let won = false;
+    won = isInBetween(i, j, claimed);
+
+    if (!won) {
+      for (let index = 0; index < claimed.length; index++) {
+        [k, l] = claimed[index];
+        diffI = k - i;
+        diffJ = l - j;
+
+        // Check if going out of bounds before accessing element
+        if (k + diffI > 2 || k + diffI < 0 || l + diffJ > 2 || l + diffJ < 0) {
+          continue;
+        }
+        if (board[i][j].claimed === board[k + diffI][l + diffJ].claimed) {
+          return [
+            board[i][j].num,
+            board[k][l].num,
+            board[k + diffI][l + diffJ].num,
+          ];
+        }
+      }
+    }
+
+    return won;
+  };
+
+  const reset = () => {
+    for (let row = 0; row < board.length; row++) {
+      for (let col = 0; col < board[row].length; col++) {
+        board[row][col].claimed = '';
+      }
+    }
+  };
+
+  return { initializeBoard, fill, checkWin, reset };
 })();
 
 const Player = (type, letter) => {
-  let score = 0;
+  const score = 0;
 
   return { type, letter, score };
 };
 
-const game = (() => {
-  const buttons = Array.from(document.querySelectorAll('.playerChoice'));
-  let selections = null;
+const Bot = (botType, botLetter) => {
+  const { type, letter, score } = Player(botType, botLetter);
 
-  const start = () => {
-    const player1 = Player(selections[0].textContent, 'X');
-    const player2 = Player(selections[1].textContent, 'O');
-    displayController.setPlayers(player1.type, player2.type);
-
-    return { player1, player2 };
+  const move = (cells) => {
+    const availableCells = cells.filter((cell) => !cell.children.length);
+    const selectedIndex = Math.floor(Math.random() * availableCells.length);
+    availableCells[selectedIndex].click();
   };
 
-  const active = (player1, player2) => {
-    // Listener needs to be added this way so that the cell is always the element being interacted
-    // with, not the div element added on click
-    const cells = Array.from(document.querySelectorAll('.cell'));
-    let turn = 0;
-    let count = 0;
+  return { type, letter, score, move };
+};
 
-    cells.forEach((cell) => {
-      cell.addEventListener('click', () => {
-        if (turn === 0) {
-          const success = displayController.fill(cell, player1.letter);
-          if (success) {
-            turn = 1;
-            count++;
-          }
-        } else {
-          const success = displayController.fill(cell, player2.letter);
-          if (success) {
-            turn = 0;
-            count++;
-          }
-        }
-      });
-    });
+const Game = (() => {
+  const buttons = Array.from(document.querySelectorAll('.playerChoice'));
+  let selections = null;
+  let homePressed = false;
+
+  const start = () => {
+    let type1 = null;
+    let type2 = null;
+    displayController.startGame();
+
+    // If the player types are the same, number them
+    if (selections[0].textContent === selections[1].textContent) {
+      type1 = `${selections[0].textContent} 1`;
+      type2 = `${selections[1].textContent} 2`;
+    } else {
+      type1 = selections[0].textContent;
+      type2 = selections[1].textContent;
+    }
+
+    const player1 = type1.includes('Bot')
+      ? Bot(type1, 'X')
+      : Player(type1, 'X');
+    const player2 = type2.includes('Bot')
+      ? Bot(type2, 'O')
+      : Player(type2, 'O');
+    displayController.setPlayers(player1.type, player2.type);
+    displayController.setTurn(player1);
+
+    return { player1, player2 };
   };
 
   const removeListeners = () => {
@@ -242,10 +472,163 @@ const game = (() => {
     board.parentNode.replaceChild(newBoard, board);
   };
 
-  const reset = () => {
+  const home = () => {
+    homePressed = true;
     selections = null;
+    displayController.clearBoard();
     displayController.home(buttons);
     removeListeners();
+  };
+
+  const draw = (cells, player1) => {
+    displayController.draw(cells);
+    displayController.setTurn(player1, true);
+    GameBoard.reset();
+  };
+
+  const newGame = (player1, player2) => {
+    player1.score = 0;
+    player2.score = 0;
+
+    displayController.updateScore(player1);
+    displayController.updateScore(player2);
+  };
+
+  const modal = (winner, player1, player2, cells, gameBoard) => {
+    const rematch = document.querySelector('.rematch');
+    const exit = document.querySelector('.exit');
+
+    rematch.addEventListener(
+      'click',
+      () => {
+        newGame(player1, player2);
+        displayController.modalController.closeModal();
+        displayController.modalController.removeListeners();
+
+        if (player1.type.includes('Bot')) {
+          gameBoard.classList.remove('click');
+
+          setTimeout(() => {
+            player1.move(cells);
+          }, 300);
+        } else {
+          gameBoard.classList.add('click');
+        }
+      },
+      { once: true }
+    );
+
+    exit.addEventListener(
+      'click',
+      () => {
+        displayController.modalController.closeModal();
+        setTimeout(() => {
+          home();
+          displayController.modalController.removeListeners();
+        }, 210);
+      },
+      { once: true }
+    );
+
+    displayController.modalController.openModal(winner);
+  };
+
+  const active = (player1, player2) => {
+    let xTurn = true;
+    let count = 0;
+    let gameWon = false;
+    let currentPlayer = player1;
+    let playerClicked = false;
+    homePressed = false;
+
+    const LOAD_ANIMATION_TIME = 3800;
+    const CLEAR_ANIMATION_TIME = 3100;
+    const NORMAL_BOT_WAIT = 1050;
+
+    // Cells MUST be defined here so that new listeners are added to the newly cloned cells if the home
+    // button was pressed
+    const cells = Array.from(document.querySelectorAll('.cell'));
+    const gameBoard = document.querySelector('.gameBoard');
+
+    const resetRound = () => {
+      GameBoard.reset();
+      playerClicked = false;
+      gameWon = false;
+      count = 0;
+      xTurn = true;
+      currentPlayer = player1;
+      displayController.setTurn(currentPlayer, true);
+    };
+
+    const nextTurn = (clickEvent, time, reset = false) => {
+      if (homePressed) {
+        GameBoard.reset();
+        return;
+      }
+      if (clickEvent) {
+        xTurn = !xTurn;
+        currentPlayer = xTurn ? player1 : player2;
+        displayController.setTurn(currentPlayer);
+      }
+      if (currentPlayer.type.includes('Bot')) {
+        gameBoard.classList.remove('click');
+
+        setTimeout(() => {
+          currentPlayer.move(cells);
+        }, time);
+      } else {
+        const waitClick = reset ? time : 0;
+
+        setTimeout(() => {
+          gameBoard.classList.add('click');
+        }, waitClick);
+      }
+    };
+
+    cells.forEach((cell, i) => {
+      const cellNum = i + 1;
+
+      cell.addEventListener('click', () => {
+        const success = displayController.fill(cell, currentPlayer.letter);
+        playerClicked = true;
+        count++;
+
+        if (success) {
+          GameBoard.fill(cellNum, currentPlayer.letter);
+
+          if (count > 3) {
+            gameWon = GameBoard.checkWin(cellNum);
+          }
+
+          if (gameWon) {
+            currentPlayer.score += 1;
+            displayController.win(gameWon, currentPlayer, cells);
+            gameBoard.classList.remove('click');
+
+            if (currentPlayer.score === 3) {
+              setTimeout(() => {
+                modal(currentPlayer.type, player1, player2, cells, gameBoard);
+              }, CLEAR_ANIMATION_TIME);
+              resetRound();
+            } else {
+              resetRound();
+              nextTurn(playerClicked, CLEAR_ANIMATION_TIME, true);
+            }
+          } else if (count === 9) {
+            gameBoard.classList.remove('click');
+
+            draw(cells, player1);
+            resetRound();
+            nextTurn(playerClicked, CLEAR_ANIMATION_TIME, true);
+          } else {
+            nextTurn(playerClicked, NORMAL_BOT_WAIT);
+          }
+        }
+      });
+    });
+
+    newGame(player1, player2);
+    nextTurn(playerClicked, LOAD_ANIMATION_TIME);
   };
 
   const init = () => {
@@ -263,15 +646,14 @@ const game = (() => {
 
     startButton.addEventListener('click', (e) => {
       e.preventDefault();
-      displayController.startGame();
       const { player1, player2 } = start();
       active(player1, player2);
     });
 
-    homeButton.addEventListener('click', reset);
+    homeButton.addEventListener('click', home);
   };
 
   return { init };
 })();
 
-game.init();
+Game.init();

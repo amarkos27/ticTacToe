@@ -45,14 +45,21 @@
         <div class="upper">
             <div class="scoreBlock">
                 <p class="player"></p>
-                <p class="score"></p>
+                <div class="score">
+                    <p class="number">0</p>
+                    <div class="addScore">+1</div>
+                </div>
             </div>
             <div class="scoreBlock">
                 <p class="player"></p>
-                <p class="score"></p>
+                <div class="score">
+                    <p class="number">0</p>
+                    <div class="addScore">+1</div>
+                </div>
             </div>
             <img src="../images/home-button-icon.svg" alt="home" class="homeButton">
         </div>
+        <div class="playerTurn"></div>
         <div class="gameBoard">
             <div class="cell hover"></div>
             <div class="cell hover"></div>
@@ -63,6 +70,15 @@
             <div class="cell hover"></div>
             <div class="cell hover"></div>
             <div class="cell hover"></div>
+        </div>
+        <div class="modal-overlay">
+            <div class="closeModal">
+                <p class="gameOver"></p>
+                <div class="modal-buttons">
+                    <button class="rematch">Play again</button>
+                    <button class="exit">Exit</button>
+                </div>
+            </div>
         </div>
     </div>
 </body>
