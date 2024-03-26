@@ -608,8 +608,8 @@ const Game = (() => {
             if (currentPlayer.score === 3) {
               setTimeout(() => {
                 modal(currentPlayer.type, player1, player2, cells, gameBoard);
+                resetRound();
               }, CLEAR_ANIMATION_TIME);
-              resetRound();
             } else {
               resetRound();
               nextTurn(playerClicked, CLEAR_ANIMATION_TIME, true);
