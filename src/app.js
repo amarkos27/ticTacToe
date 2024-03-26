@@ -213,26 +213,20 @@ const displayController = (() => {
     }
   };
 
-  const win = (row, player, gameBoard, cells) => {
-    gameBoard.classList.add('noClick');
-
+  const win = (row, player, cells) => {
     updateScore(player, true);
     highlightRow(row, cells);
 
     setTimeout(() => {
       clearBoard(true);
-      gameBoard.classList.remove('noClick');
     }, 2500);
   };
 
-  const draw = (gameBoard, cells) => {
-    gameBoard.classList.add('noClick');
-
+  const draw = (cells) => {
     cells.forEach((cell) => cell.classList.add('draw'));
 
     setTimeout(() => {
       clearBoard(true);
-      gameBoard.classList.remove('noClick');
     }, 2500);
   };
 
@@ -430,15 +424,10 @@ const Player = (type, letter) => {
 const Bot = (botType, botLetter) => {
   const { type, letter, score } = Player(botType, botLetter);
 
-  const move = (cells, gameBoard) => {
+  const move = (cells) => {
     const availableCells = cells.filter((cell) => !cell.children.length);
     const selectedIndex = Math.floor(Math.random() * availableCells.length);
-
-    gameBoard.classList.add('noClick');
-    setTimeout(() => {
-      availableCells[selectedIndex].click();
-      gameBoard.classList.remove('noClick');
-    }, 1000);
+    availableCells[selectedIndex].click();
   };
 
   return { type, letter, score, move };
@@ -447,6 +436,7 @@ const Bot = (botType, botLetter) => {
 const Game = (() => {
   const buttons = Array.from(document.querySelectorAll('.playerChoice'));
   let selections = null;
+  let homePressed = false;
 
   const start = () => {
     let type1 = null;
@@ -483,33 +473,25 @@ const Game = (() => {
   };
 
   const home = () => {
+    homePressed = true;
     selections = null;
     displayController.clearBoard();
-    GameBoard.reset();
     displayController.home(buttons);
     removeListeners();
   };
 
-  const draw = (gameBoard, cells, player1) => {
-    displayController.draw(gameBoard, cells);
+  const draw = (cells, player1) => {
+    displayController.draw(cells);
     displayController.setTurn(player1, true);
     GameBoard.reset();
   };
 
-  const newGame = (player1, player2, cells, gameBoard, time) => {
+  const newGame = (player1, player2) => {
     player1.score = 0;
     player2.score = 0;
 
     displayController.updateScore(player1);
     displayController.updateScore(player2);
-
-    // Have bot make a move after 3.1s only on the first move so that the loading animation
-    // can finish
-    if (player1.type.includes('Bot')) {
-      setTimeout(() => {
-        player1.move(cells, gameBoard);
-      }, time);
-    }
   };
 
   const modal = (winner, player1, player2, cells, gameBoard) => {
@@ -519,9 +501,19 @@ const Game = (() => {
     rematch.addEventListener(
       'click',
       () => {
-        newGame(player1, player2, cells, gameBoard, 220);
+        newGame(player1, player2);
         displayController.modalController.closeModal();
         displayController.modalController.removeListeners();
+
+        if (player1.type.includes('Bot')) {
+          gameBoard.classList.remove('click');
+
+          setTimeout(() => {
+            player1.move(cells);
+          }, 300);
+        } else {
+          gameBoard.classList.add('click');
+        }
       },
       { once: true }
     );
@@ -546,91 +538,97 @@ const Game = (() => {
     let count = 0;
     let gameWon = false;
     let currentPlayer = player1;
-    let nextPlayer = player2;
+    let playerClicked = false;
+    homePressed = false;
+
+    const LOAD_ANIMATION_TIME = 3800;
+    const CLEAR_ANIMATION_TIME = 3100;
+    const NORMAL_BOT_WAIT = 1050;
 
     // Cells MUST be defined here so that new listeners are added to the newly cloned cells if the home
     // button was pressed
     const cells = Array.from(document.querySelectorAll('.cell'));
     const gameBoard = document.querySelector('.gameBoard');
 
-    newGame(player1, player2, cells, gameBoard, 3100);
+    const resetRound = () => {
+      GameBoard.reset();
+      playerClicked = false;
+      gameWon = false;
+      count = 0;
+      xTurn = true;
+      currentPlayer = player1;
+      displayController.setTurn(currentPlayer, true);
+    };
+
+    const nextTurn = (clickEvent, time, reset = false) => {
+      if (homePressed) {
+        GameBoard.reset();
+        return;
+      }
+      if (clickEvent) {
+        xTurn = !xTurn;
+        currentPlayer = xTurn ? player1 : player2;
+        displayController.setTurn(currentPlayer);
+      }
+      if (currentPlayer.type.includes('Bot')) {
+        gameBoard.classList.remove('click');
+
+        setTimeout(() => {
+          currentPlayer.move(cells);
+        }, time);
+      } else {
+        const waitClick = reset ? time : 0;
+
+        setTimeout(() => {
+          gameBoard.classList.add('click');
+        }, waitClick);
+      }
+    };
 
     cells.forEach((cell, i) => {
-      // User inputs drive the program forward
       const cellNum = i + 1;
 
       cell.addEventListener('click', () => {
-        if (xTurn) {
-          currentPlayer = player1;
-          nextPlayer = player2;
-        } else {
-          currentPlayer = player2;
-          nextPlayer = player1;
-        }
-
         const success = displayController.fill(cell, currentPlayer.letter);
+        playerClicked = true;
+        count++;
 
         if (success) {
           GameBoard.fill(cellNum, currentPlayer.letter);
-          displayController.setTurn(nextPlayer);
-          xTurn = !xTurn;
-          count++;
 
-          // Game win only needs to be checked after 4 turns
-          if (count > 4) {
+          if (count > 3) {
             gameWon = GameBoard.checkWin(cellNum);
-
-            // If game is a draw
-            if (count === 9 && !gameWon) {
-              draw(gameBoard, cells, player1);
-              count = 0;
-              xTurn = true;
-
-              if (player1.type.includes('Bot')) {
-                // Wait for board to be cleared before going
-                setTimeout(() => {
-                  player1.move(cells, gameBoard);
-                }, 3100);
-                return;
-              }
-            }
           }
 
           if (gameWon) {
             currentPlayer.score += 1;
-            displayController.win(gameWon, currentPlayer, gameBoard, cells);
-            displayController.setTurn(player1, true);
-            GameBoard.reset();
-
-            count = 0;
-            xTurn = true;
-            gameWon = false;
+            displayController.win(gameWon, currentPlayer, cells);
+            gameBoard.classList.remove('click');
 
             if (currentPlayer.score === 3) {
-              // Wait 2.7s for win animations to finish before opening
               setTimeout(() => {
                 modal(currentPlayer.type, player1, player2, cells, gameBoard);
-              }, 2700);
-
-              // Return statement prevents bots from continuing game after it is over
-              return;
+              }, CLEAR_ANIMATION_TIME);
+              resetRound();
+            } else {
+              resetRound();
+              nextTurn(playerClicked, CLEAR_ANIMATION_TIME, true);
             }
+          } else if (count === 9) {
+            gameBoard.classList.remove('click');
 
-            if (player1.type.includes('Bot')) {
-              setTimeout(() => {
-                player1.move(cells, gameBoard);
-              }, 3100);
-            }
+            draw(cells, player1);
+            resetRound();
+            nextTurn(playerClicked, CLEAR_ANIMATION_TIME, true);
           } else {
-            displayController.setTurn(nextPlayer);
-
-            if (nextPlayer.type.includes('Bot')) {
-              nextPlayer.move(cells, gameBoard);
-            }
+            nextTurn(playerClicked, NORMAL_BOT_WAIT);
           }
         }
       });
     });
+
+    newGame(player1, player2);
+    nextTurn(playerClicked, LOAD_ANIMATION_TIME);
   };
 
   const init = () => {
@@ -659,8 +657,3 @@ const Game = (() => {
 })();
 
 Game.init();
-
-// AGENDA
-/*
-- Add bot functionality
-*/

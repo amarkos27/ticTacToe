@@ -400,10 +400,11 @@ p {
     height: var(--board-dimension);
     grid: repeat(3, 1fr) / repeat(3, 1fr);
     gap: 8px;
+    pointer-events: none;
 }
 
-.noClick {
-    pointer-events: none;
+.click {
+    pointer-events: all;
 }
 
 .cell {
