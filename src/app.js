@@ -494,7 +494,7 @@ const Game = (() => {
     displayController.updateScore(player2);
   };
 
-  const modal = (winner, player1, player2) => {
+  const modal = (winner, player1, player2, cells, gameBoard) => {
     const rematch = document.querySelector('.rematch');
     const exit = document.querySelector('.exit');
 
@@ -504,6 +504,16 @@ const Game = (() => {
         newGame(player1, player2);
         displayController.modalController.closeModal();
         displayController.modalController.removeListeners();
+
+        if (player1.type.includes('Bot')) {
+          gameBoard.classList.remove('click');
+
+          setTimeout(() => {
+            player1.move(cells);
+          }, 300);
+        } else {
+          gameBoard.classList.add('click');
+        }
       },
       { once: true }
     );
@@ -597,8 +607,9 @@ const Game = (() => {
 
             if (currentPlayer.score === 3) {
               setTimeout(() => {
-                modal(currentPlayer.type, player1, player2);
+                modal(currentPlayer.type, player1, player2, cells, gameBoard);
               }, CLEAR_ANIMATION_TIME);
+              resetRound();
             } else {
               resetRound();
               nextTurn(playerClicked, CLEAR_ANIMATION_TIME, true);
