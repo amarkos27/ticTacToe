@@ -550,18 +550,22 @@ const Game = (() => {
     const cells = Array.from(document.querySelectorAll('.cell'));
     const gameBoard = document.querySelector('.gameBoard');
 
-    const resetRound = () => {
+    const resetRound = (clearAnimation = true) => {
       GameBoard.reset();
       playerClicked = false;
       gameWon = false;
       count = 0;
       xTurn = true;
       currentPlayer = player1;
-      displayController.setTurn(currentPlayer, true);
+
+      if (clearAnimation) {
+        displayController.setTurn(currentPlayer, true);
+      }
     };
 
     const nextTurn = (clickEvent, time, reset = false) => {
       if (homePressed) {
+        resetRound(false);
         GameBoard.reset();
         return;
       }
