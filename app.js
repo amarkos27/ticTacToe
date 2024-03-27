@@ -566,7 +566,6 @@ const Game = (() => {
     const nextTurn = (clickEvent, time, reset = false) => {
       if (homePressed) {
         resetRound(false);
-        GameBoard.reset();
         return;
       }
       if (clickEvent) {
