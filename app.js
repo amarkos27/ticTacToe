@@ -591,10 +591,10 @@ const Game = (() => {
       cell.addEventListener('click', () => {
         const success = displayController.fill(cell, currentPlayer.letter);
         playerClicked = true;
-        count++;
 
         if (success) {
           GameBoard.fill(cellNum, currentPlayer.letter);
+          count++;
 
           if (count > 3) {
             gameWon = GameBoard.checkWin(cellNum);
